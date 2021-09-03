@@ -5,7 +5,9 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 )
 
 var (
@@ -29,6 +31,11 @@ func main() {
 		fileStat, err := file.Stat()
 		if err != nil {
 			logger.Printf("Could not get file (%v) stats (%v)", file.Name(), err)
+		}
+
+		if fileStat.Size() == 0 {
+			logger.Printf("DiscordApiKeyFile (%v) size is 0", file.Name())
+			os.Exit(1)
 		}
 
 		if fileStat.Size() > 1<<20 {
@@ -58,5 +65,13 @@ func main() {
 		return
 	}
 
-	logger.Printf("Stopping discordingestor, commit:%v, tag:%v, Mode:%v", GitCommit, GitTag, Mode)
+	osSignal := make(chan os.Signal, 1)
+	signal.Notify(osSignal, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+
+	if signalFromSystem := <-osSignal; signalFromSystem != nil {
+		logger.Printf("Stopping discordingestor, commit:%v, tag:%v, Mode:%v, reason: (%v)", GitCommit, GitTag, Mode, signalFromSystem.String())
+		return
+	}
+
+	logger.Printf("Stopping discordingestor, commit:%v, tag:%v, Mode:%v, reason: (signal from system unknown)", GitCommit, GitTag, Mode)
 }
