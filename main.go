@@ -73,5 +73,5 @@ func main() {
 		return
 	}
 
-	logger.Printf("Stopping discordingestor, commit:%v, tag:%v, Mode:%v, reason: (signal from system unknown)", GitCommit, GitTag, Mode)
+	logger.Printf("Stopping discordingestor, commit:%v, tag:%v, Mode:%v, reason: (unknown)", GitCommit, GitTag, Mode)
 }
