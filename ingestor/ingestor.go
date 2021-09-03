@@ -3,15 +3,15 @@ package ingestor
 import "log"
 
 type Ingestor struct {
-	logger *log.Logger
-	discordAPIKey string
+	logger         *log.Logger
+	discordAPIKey  string
 	redisEndpoints []string
 }
 
-func New(logger *log.Logger, discordAPIKey string, redisEndpoints[] string) Ingestor {
+func New(logger *log.Logger, discordAPIKey string, redisEndpoints []string) Ingestor {
 	return Ingestor{
-		logger: logger,
-		discordAPIKey: discordAPIKey,
+		logger:         logger,
+		discordAPIKey:  discordAPIKey,
 		redisEndpoints: redisEndpoints,
 	}
 }
