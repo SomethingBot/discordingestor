@@ -19,4 +19,4 @@ lint:
 	go fmt ./...
 
 run: build
-	DISCORDINGESTOR_REDIS_ENDPOINTS=localhost:2379 DISCORDINGESTOR_ADDRESS=0.0.0.0:8983 ./discordingestor
+	REDIS_ENDPOINTS=localhost:2379 REDIS_ENDPOINTS=127.0.0.1:6379 ./discordingestor
