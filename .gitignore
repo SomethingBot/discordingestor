@@ -6,6 +6,9 @@
 *.dylib
 discordingestor
 
+# File that store DiscordAPIKey during development
+apikeyfile
+
 # Test binary, built with `go test -c`
 *.test
 
