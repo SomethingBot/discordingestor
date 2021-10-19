@@ -2,7 +2,7 @@ package ingestor
 
 import (
 	"fmt"
-	"github.com/SomethingBot/discordgo"
+	"github.com/diamondburned/arikawa/v3/gateway"
 	"log"
 	"strings"
 	"sync"
@@ -18,23 +18,30 @@ type RedisConfig struct {
 }
 
 type DiscordConfig struct {
-	discordAPIKey    string
-	discordGoSession *discordgo.Session
+	discordAPIKey  string
+	discordSession discordSession
+}
+
+type ingestorState struct {
+	open     bool
+	openLock sync.Mutex
 }
 
 type Ingestor struct {
-	logger   *log.Logger
-	open     bool
-	openLock sync.Mutex
+	logger       *log.Logger
+	sessionMaker func(apikey string) discordSession
+	ingestorState
 	RedisConfig
 	DiscordConfig
 }
 
-func New(logger *log.Logger, discordAPIKey string, redisEndpoints []string) (ingestor Ingestor) {
-	ingestor.logger = logger
-	ingestor.discordAPIKey = discordAPIKey
-	ingestor.redisEndPoints = redisEndpoints
-	return
+func New(logger *log.Logger, discordConfig DiscordConfig, redisConfig RedisConfig) *Ingestor {
+	return &Ingestor{
+		logger:        logger,
+		sessionMaker:  newArikawaSession,
+		RedisConfig:   redisConfig,
+		DiscordConfig: discordConfig,
+	}
 }
 
 func (ingestor *Ingestor) Open() (err error) {
@@ -44,17 +51,25 @@ func (ingestor *Ingestor) Open() (err error) {
 		return ErrorAlreadyOpen
 	}
 	ingestor.open = true
+	defer func() {
+		if err != nil {
+			ingestor.open = false
+		}
+	}()
 
-	ingestor.discordGoSession, err = discordgo.New("Bot " + strings.TrimSuffix(ingestor.discordAPIKey, "\n"))
+	ingestor.discordSession = ingestor.sessionMaker(strings.TrimSuffix(ingestor.discordAPIKey, "\n"))
 	if err != nil {
 		return err
 	}
 
-	ingestor.discordGoSession.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages | discordgo.IntentsGuildInvites | discordgo.IntentsGuildVoiceStates | discordgo.IntentsGuilds)
+	ingestor.discordSession.setIntents(discordIntent(gateway.IntentGuildMessages | gateway.IntentGuildInvites | gateway.IntentGuildVoiceStates | gateway.IntentGuilds))
 
-	ingestor.discordGoSession.AddHandler(ingestor.handleMessages)
+	err = ingestor.discordSession.addHandler(ingestor.handleMessages)
+	if err != nil {
+		return err
+	}
 
-	err = ingestor.discordGoSession.Open()
+	err = ingestor.discordSession.open()
 	if err != nil {
 		return err
 	}
@@ -70,7 +85,7 @@ func (ingestor *Ingestor) Close() (err error) {
 	}
 	ingestor.open = false
 
-	err = ingestor.discordGoSession.Close()
+	err = ingestor.discordSession.close()
 	if err != nil {
 		return err
 	}
