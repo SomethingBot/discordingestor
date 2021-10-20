@@ -9,16 +9,16 @@ import (
 )
 
 var (
-	ErrorAlreadyOpen   = fmt.Errorf("ingestor already open")
-	ErrorAlreadyClosed = fmt.Errorf("ingestor already closed")
+	ErrorInjestorAlreadyOpen   = fmt.Errorf("ingestor already open")
+	ErrorInjestorAlreadyClosed = fmt.Errorf("ingestor already closed")
 )
 
 type RedisConfig struct {
-	redisEndPoints []string
+	RedisEndPoints []string
 }
 
 type DiscordConfig struct {
-	discordAPIKey  string
+	DiscordAPIKey  string
 	discordSession discordSession
 }
 
@@ -48,16 +48,10 @@ func (ingestor *Ingestor) Open() (err error) {
 	ingestor.openLock.Lock()
 	defer ingestor.openLock.Unlock()
 	if ingestor.open {
-		return ErrorAlreadyOpen
+		return ErrorInjestorAlreadyOpen
 	}
-	ingestor.open = true
-	defer func() {
-		if err != nil {
-			ingestor.open = false
-		}
-	}()
 
-	ingestor.discordSession = ingestor.sessionMaker(strings.TrimSuffix(ingestor.discordAPIKey, "\n"))
+	ingestor.discordSession = ingestor.sessionMaker(strings.TrimSuffix(ingestor.DiscordAPIKey, "\n"))
 	if err != nil {
 		return err
 	}
@@ -74,21 +68,23 @@ func (ingestor *Ingestor) Open() (err error) {
 		return err
 	}
 
+	ingestor.open = true
 	return nil
 }
 
 func (ingestor *Ingestor) Close() (err error) {
 	ingestor.openLock.Lock()
 	defer ingestor.openLock.Unlock()
+
 	if !ingestor.open {
-		return ErrorAlreadyClosed
+		return ErrorInjestorAlreadyClosed
 	}
-	ingestor.open = false
 
 	err = ingestor.discordSession.close()
 	if err != nil {
 		return err
 	}
 
+	ingestor.open = false
 	return nil
 }

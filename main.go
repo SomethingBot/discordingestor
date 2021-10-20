@@ -58,7 +58,7 @@ func main() {
 	}
 	redisEndpoints = strings.Split(redisEndpointsEnv, ",")
 
-	ingest := ingestor.New(logger, discordAPIKey, redisEndpoints)
+	ingest := ingestor.New(logger, ingestor.DiscordConfig{DiscordAPIKey: discordAPIKey}, ingestor.RedisConfig{RedisEndPoints: redisEndpoints})
 	err := ingest.Open()
 	if err != nil {
 		logger.Printf("Could not open ingestor (%v)", err)
