@@ -9,7 +9,7 @@ type Emoji struct {
 	//Roles allowed to use this Emoji
 	Roles []Role `json:"roles"`
 	//Creator of this Emoji
-	Creator GuildMember `json:"user"`
+	Creator User `json:"user"`
 	//RequiresColons wrapped around Name to use
 	RequiresColons bool `json:"require_colons"`
 	//IsManaged Emoji?
