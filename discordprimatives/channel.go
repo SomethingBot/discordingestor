@@ -2,8 +2,10 @@ package discordprimatives
 
 import "time"
 
-type ChannelFlag uint8
+//SystemChannelFlag from https://discord.com/developers/docs/resources/guild#guild-object-system-channel-flags
+type SystemChannelFlag uint8
 
+//ChannelType from https://discord.com/developers/docs/resources/channel#channel-object-channel-types
 type ChannelType int
 
 //VoiceQualityMode struct from https://discord.com/developers/docs/resources/channel#channel-object-video-quality-modes

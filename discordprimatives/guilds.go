@@ -1,12 +1,32 @@
 package discordprimatives
 
-//GuildMember struct from json, documented at https://discord.com/developers/docs/resources/guild#guild-member-object
+import "time"
+
+//GuildMember from https://discord.com/developers/docs/resources/guild#guild-member-object
 type GuildMember struct {
 }
 
-//WelcomeScreen struct from json, documented at https://discord.com/developers/docs/resources/guild#welcome-screen-object
+//WelcomeScreen from https://discord.com/developers/docs/resources/guild#welcome-screen-object
 type WelcomeScreen struct {
 }
+
+//VerificationLevel from https://discord.com/developers/docs/resources/guild#guild-object-verification-level
+type VerificationLevel int
+
+//MessageNotificationsLevel from https://discord.com/developers/docs/resources/guild#guild-object-default-message-notification-level
+type MessageNotificationsLevel int
+
+//ExplicitContentFilterLevel from https://discord.com/developers/docs/resources/guild#guild-object-explicit-content-filter-level
+type ExplicitContentFilterLevel int
+
+//MFALevel from https://discord.com/developers/docs/resources/guild#guild-object-mfa-level
+type MFALevel int
+
+//PremiumTier from https://discord.com/developers/docs/resources/guild#guild-object-premium-tier
+type PremiumTier int
+
+//NSFWLevel from https://discord.com/developers/docs/resources/guild#guild-object-guild-nsfw-level
+type NSFWLevel int
 
 //GuildFeature struct from https://discord.com/developers/docs/resources/guild#guild-object-guild-features
 type GuildFeature string
@@ -23,8 +43,8 @@ type Guild struct {
 	IconHashInTemplate string `json:"icon_hash"`
 	//SplashHash; todo: function for Fully qualified url
 	SplashHash string `json:"splash"`
-	//DiscoverySplash hash; only present for Guilds with the "DISCOVERABLE" feature; todo: function for Fully qualified url
-	DiscoverySplash string `json:"discovery_splash"`
+	//DiscoverySplashHash; only present for Guilds with the "DISCOVERABLE" feature; todo: function for Fully qualified url
+	DiscoverySplashHash string `json:"discovery_splash"`
 	//IsBotOwner is true if Bot is Guild owner, only sent when using the GET Current User Guilds endpoint and are relative to the requested user
 	IsBotOwner bool `json:"owner"`
 	//OwnerID of guild
@@ -32,7 +52,7 @@ type Guild struct {
 	//Permissions of current user in Guild; total permissions for the Bot in the Guild (excludes overwrites)
 	Permissions string `json:"permissions"`
 	//RegionID; voice region ID for the Guild (deprecated)
-	RegionID string `json:"region"`
+	VoiceRegionID string `json:"region"`
 	//AFKChannelID for Guild
 	AFKChannelID Snowflake `json:"afk_channel_id,string"`
 	//AFKTimeout in seconds
@@ -42,11 +62,11 @@ type Guild struct {
 	//WidgetChannelID that the widget will generate an Invite to, 0 if no invite
 	WidgetChannelID Snowflake `json:"widget_channel_id,string"`
 	//VerificationLevel required for the Guild
-	VerificationLevel int `json:"verification_level"`
+	VerificationLevel VerificationLevel `json:"verification_level"`
 	//DefaultMessageNotificationsLevel for Guild
-	DefaultMessageNotificationsLevel int `json:"default_message_notifications"`
+	DefaultMessageNotificationsLevel MessageNotificationsLevel `json:"default_message_notifications"`
 	//ExplicitContentFilterLevel for Guild
-	ExplicitContentFilterLevel int `json:"explicit_content_filter"`
+	ExplicitContentFilterLevel ExplicitContentFilterLevel `json:"explicit_content_filter"`
 	//Roles for Guild
 	Roles []Role `json:"roles"`
 	//Emojis is a list of custom Emojis
@@ -54,18 +74,17 @@ type Guild struct {
 	//EnabledFeatures is a list of enabled GuildFeature(s)
 	EnabledFeatures []GuildFeature `json:"features"`
 	//MFALevel that is required for Guild
-	MFALevel int `json:"mfa_level"`
+	MFALevel MFALevel `json:"mfa_level"`
 	//ApplicationID of guild creator if bot-created
 	ApplicationID Snowflake `json:"application_id,string"`
 	//SystemChannelID is ID of Channel where Guild notices such as welcome message and boost events are posted
 	SystemChannelID Snowflake `json:"system_channel_id,string"`
 	//SystemChannelFlags for SystemChannel
-	SystemChannelFlags ChannelFlag `json:"system_channel_flags,string"`
+	SystemChannelFlags SystemChannelFlag `json:"system_channel_flags,string"`
 	//RulesChannelID where community Guilds can display rules and/or guidelines
 	RulesChannelID Snowflake `json:"rules_channel_id,string"`
-	//todo: maybe convert this to a type that doesn't have to be parsed first
-	//BotJoinedAt a ISO8601 timestamp when bot joined this Guild; only sent in GUILD_CREATE Event
-	BotJoinedAt string `json:"joined_at"`
+	//BotJoinedAt a timestamp when bot joined this Guild; only sent in GUILD_CREATE Event
+	BotJoinedAt time.Time `json:"joined_at"`
 	//IsLarge if Guild is large; only sent in GUILD_CREATE Event
 	IsLarge bool `json:"large"`
 	//IsUnavailable due to outage; only sent in GUILD_CREATE Event
@@ -81,7 +100,7 @@ type Guild struct {
 	//Threads that Bot has permission to view; only sent in GUILD_CREATE Event
 	Threads []Channel `json:"threads"`
 	//Presences in Guild; only sent in GUILD_CREATE Event; only includes non-offline GuildMember(s) if IsLarge
-	Presences []Presence `json:"presences"`
+	Presences []PresenceUpdate `json:"presences"`
 	//MaxPresences in Guild; almost always 0 unless Guild is massive
 	MaxPresences int `json:"max_presences"`
 	//MaxMembers in Guild
@@ -93,7 +112,7 @@ type Guild struct {
 	//BannerHash todo: function for Fully qualified url
 	BannerHash string `json:"banner"`
 	//PremiumTier aka boost level
-	PremiumTier int `json:"premium_tier"`
+	PremiumTier PremiumTier `json:"premium_tier"`
 	//PremiumSubscriptionCount is number of boosts Guild has
 	PremiumSubscriptionCount int `json:"premium_subscription_count"`
 	//PreferredLocale of Guild; used for Guild Discovery and Discord notices; defaults to en-US
@@ -107,7 +126,7 @@ type Guild struct {
 	//WelcomeScreen of a Community Guild, shown to new members, returned in an Invite
 	WelcomeScreen WelcomeScreen `json:"welcome_screen"`
 	//NSFWLevel of Guild
-	NSFWLevel int `json:"nsfw_level"`
+	NSFWLevel NSFWLevel `json:"nsfw_level"`
 	//StageInstances in Guild; only sent in GUILD_CREATE Event
 	StageInstances []StageInstance `json:"stage_instances"`
 	//Stickers in Guild
