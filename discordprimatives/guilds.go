@@ -1,5 +1,13 @@
 package discordprimatives
 
+//GuildMember struct from json, documented at https://discord.com/developers/docs/resources/guild#guild-member-object
+type GuildMember struct {
+}
+
+//WelcomeScreen struct from json, documented at https://discord.com/developers/docs/resources/guild#welcome-screen-object
+type WelcomeScreen struct {
+}
+
 //GuildFeature struct from https://discord.com/developers/docs/resources/guild#guild-object-guild-features
 type GuildFeature string
 
