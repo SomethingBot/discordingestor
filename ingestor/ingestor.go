@@ -2,6 +2,7 @@ package ingestor
 
 import (
 	"fmt"
+	"github.com/SomethingBot/discordingestor/discordprimatives"
 	"github.com/diamondburned/arikawa/v3/gateway"
 	"log"
 	"strings"
@@ -58,7 +59,7 @@ func (ingestor *Ingestor) Open() (err error) {
 		return err
 	}
 
-	ingestor.DiscordClient.SetIntents(DiscordIntent(gateway.IntentGuildMessages | gateway.IntentGuildInvites | gateway.IntentGuildVoiceStates | gateway.IntentGuilds))
+	ingestor.DiscordClient.SetIntents(discordprimatives.Intent(gateway.IntentGuildMessages | gateway.IntentGuildInvites | gateway.IntentGuildVoiceStates | gateway.IntentGuilds))
 
 	err = ingestor.DiscordClient.AddHandler(ingestor.handleMessages)
 	if err != nil {

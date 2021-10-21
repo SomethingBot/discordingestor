@@ -1,6 +1,9 @@
 package ingestor
 
-import "sync"
+import (
+	"github.com/SomethingBot/discordingestor/discordprimatives"
+	"sync"
+)
 
 type ClientState struct {
 	runningMutex sync.Mutex
@@ -43,7 +46,7 @@ func (m *MockDiscordClient) AddHandler(f func(string)) error {
 	return nil
 }
 
-func (m *MockDiscordClient) SetIntents(intent DiscordIntent) {
+func (m *MockDiscordClient) SetIntents(intent discordprimatives.Intent) {
 }
 
 func newMockSessionMaker(apikey string) DiscordClient {

@@ -1,6 +1,9 @@
 package arikawa
 
-import "github.com/SomethingBot/discordingestor/ingestor"
+import (
+	"github.com/SomethingBot/discordingestor/discordprimatives"
+	"github.com/SomethingBot/discordingestor/ingestor"
+)
 
 type Session struct {
 	//apikey without the "Bot " prefix
@@ -23,6 +26,6 @@ func (arikawaSession *Session) AddHandler(handlerFunc func(string)) error {
 	return nil
 }
 
-func (arikawaSession *Session) SetIntents(discordIntent ingestor.DiscordIntent) {
+func (arikawaSession *Session) SetIntents(discordIntent discordprimatives.Intent) {
 
 }

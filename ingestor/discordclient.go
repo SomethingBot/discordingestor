@@ -1,6 +1,9 @@
 package ingestor
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/SomethingBot/discordingestor/discordprimatives"
+)
 
 var (
 	ErrorSessionAlreadyOpen   = fmt.Errorf("ingestor: session already open")
@@ -11,5 +14,5 @@ type DiscordClient interface {
 	Open() error
 	Close() error
 	AddHandler(func(string)) error
-	SetIntents(DiscordIntent)
+	SetIntents(discordprimatives.Intent)
 }
