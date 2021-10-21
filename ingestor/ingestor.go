@@ -59,7 +59,7 @@ func (ingestor *Ingestor) Open() (err error) {
 		return err
 	}
 
-	ingestor.DiscordClient.SetIntents(discordprimatives.Intent(gateway.IntentGuildMessages | gateway.IntentGuildInvites | gateway.IntentGuildVoiceStates | gateway.IntentGuilds))
+	ingestor.DiscordClient.SetIntents(discordprimatives.GatewayIntent(gateway.IntentGuildMessages | gateway.IntentGuildInvites | gateway.IntentGuildVoiceStates | gateway.IntentGuilds))
 
 	err = ingestor.DiscordClient.AddHandler(ingestor.handleMessages)
 	if err != nil {

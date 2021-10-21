@@ -46,7 +46,7 @@ func (m *MockDiscordClient) AddHandler(f func(string)) error {
 	return nil
 }
 
-func (m *MockDiscordClient) SetIntents(intent discordprimatives.Intent) {
+func (m *MockDiscordClient) SetIntents(intent discordprimatives.GatewayIntent) {
 }
 
 func newMockSessionMaker(apikey string) DiscordClient {

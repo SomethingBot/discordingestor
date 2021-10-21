@@ -26,6 +26,6 @@ func (arikawaSession *Session) AddHandler(handlerFunc func(string)) error {
 	return nil
 }
 
-func (arikawaSession *Session) SetIntents(discordIntent discordprimatives.Intent) {
+func (arikawaSession *Session) SetIntents(discordIntent discordprimatives.GatewayIntent) {
 
 }
