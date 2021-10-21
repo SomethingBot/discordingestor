@@ -18,9 +18,11 @@ type RedisConfig struct {
 }
 
 type DiscordConfig struct {
-	DiscordAPIKey  string
-	discordSession discordSession
+	DiscordAPIKey string
+	DiscordClient DiscordClient
 }
+
+type DiscordClientMaker func(apikey string) DiscordClient
 
 type ingestorState struct {
 	open     bool
@@ -28,19 +30,19 @@ type ingestorState struct {
 }
 
 type Ingestor struct {
-	logger       *log.Logger
-	sessionMaker func(apikey string) discordSession
+	logger             *log.Logger
+	discordClientMaker DiscordClientMaker
 	ingestorState
 	RedisConfig
 	DiscordConfig
 }
 
-func New(logger *log.Logger, discordConfig DiscordConfig, redisConfig RedisConfig) *Ingestor {
+func New(logger *log.Logger, discordClientMaker DiscordClientMaker, discordConfig DiscordConfig, redisConfig RedisConfig) *Ingestor {
 	return &Ingestor{
-		logger:        logger,
-		sessionMaker:  newArikawaSession,
-		RedisConfig:   redisConfig,
-		DiscordConfig: discordConfig,
+		logger:             logger,
+		discordClientMaker: discordClientMaker,
+		RedisConfig:        redisConfig,
+		DiscordConfig:      discordConfig,
 	}
 }
 
@@ -51,19 +53,19 @@ func (ingestor *Ingestor) Open() (err error) {
 		return ErrorInjestorAlreadyOpen
 	}
 
-	ingestor.discordSession = ingestor.sessionMaker(strings.TrimSuffix(ingestor.DiscordAPIKey, "\n"))
+	ingestor.DiscordClient = ingestor.discordClientMaker(strings.TrimSuffix(ingestor.DiscordAPIKey, "\n"))
 	if err != nil {
 		return err
 	}
 
-	ingestor.discordSession.setIntents(discordIntent(gateway.IntentGuildMessages | gateway.IntentGuildInvites | gateway.IntentGuildVoiceStates | gateway.IntentGuilds))
+	ingestor.DiscordClient.SetIntents(DiscordIntent(gateway.IntentGuildMessages | gateway.IntentGuildInvites | gateway.IntentGuildVoiceStates | gateway.IntentGuilds))
 
-	err = ingestor.discordSession.addHandler(ingestor.handleMessages)
+	err = ingestor.DiscordClient.AddHandler(ingestor.handleMessages)
 	if err != nil {
 		return err
 	}
 
-	err = ingestor.discordSession.open()
+	err = ingestor.DiscordClient.Open()
 	if err != nil {
 		return err
 	}
@@ -80,7 +82,7 @@ func (ingestor *Ingestor) Close() (err error) {
 		return ErrorInjestorAlreadyClosed
 	}
 
-	err = ingestor.discordSession.close()
+	err = ingestor.DiscordClient.Close()
 	if err != nil {
 		return err
 	}

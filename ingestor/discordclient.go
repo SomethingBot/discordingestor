@@ -7,11 +7,9 @@ var (
 	ErrorSessionAlreadyClosed = fmt.Errorf("ingestor: session already closed")
 )
 
-type discordSession interface {
-	open() error
-	close() error
-	addHandler(func(string)) error
-	setIntents(discordIntent)
+type DiscordClient interface {
+	Open() error
+	Close() error
+	AddHandler(func(string)) error
+	SetIntents(DiscordIntent)
 }
-
-type discordIntent uint32

@@ -11,7 +11,7 @@ type mockSession struct {
 	running      bool
 }
 
-func (m *mockSession) open() error {
+func (m *mockSession) Open() error {
 	m.runningMutex.Lock()
 	defer func() {
 		m.runningMutex.Unlock()
@@ -25,7 +25,7 @@ func (m *mockSession) open() error {
 	return nil
 }
 
-func (m *mockSession) close() error {
+func (m *mockSession) Close() error {
 	m.runningMutex.Lock()
 	defer func() {
 		m.runningMutex.Unlock()
@@ -39,22 +39,21 @@ func (m *mockSession) close() error {
 	return nil
 }
 
-func (m *mockSession) addHandler(f func(string)) error {
+func (m *mockSession) AddHandler(f func(string)) error {
 	return nil
 }
 
-func (m *mockSession) setIntents(intent discordIntent) {
+func (m *mockSession) SetIntents(intent DiscordIntent) {
 }
 
-func newMockSessionMaker(apikey string) discordSession {
+func newMockSessionMaker(apikey string) DiscordClient {
 	return &mockSession{}
 }
 
 func TestOpenClose(t *testing.T) {
 	t.Parallel()
 
-	ingestor := New(log.Default(), DiscordConfig{}, RedisConfig{})
-	ingestor.sessionMaker = newMockSessionMaker
+	ingestor := New(log.Default(), newMockSessionMaker, DiscordConfig{}, RedisConfig{})
 
 	err := ingestor.Open()
 	if err != nil {

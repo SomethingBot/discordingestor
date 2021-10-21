@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/SomethingBot/discordingestor/arikawa"
 	"github.com/SomethingBot/discordingestor/ingestor"
 	"io"
 	"log"
@@ -58,7 +59,13 @@ func main() {
 	}
 	redisEndpoints = strings.Split(redisEndpointsEnv, ",")
 
-	ingest := ingestor.New(logger, ingestor.DiscordConfig{DiscordAPIKey: discordAPIKey}, ingestor.RedisConfig{RedisEndPoints: redisEndpoints})
+	ingest := ingestor.New(
+		logger,
+		arikawa.New,
+		ingestor.DiscordConfig{DiscordAPIKey: discordAPIKey},
+		ingestor.RedisConfig{RedisEndPoints: redisEndpoints},
+	)
+
 	err := ingest.Open()
 	if err != nil {
 		logger.Printf("Could not open ingestor (%v)", err)
