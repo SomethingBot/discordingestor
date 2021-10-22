@@ -52,12 +52,7 @@ func main() {
 		discordAPIKey = string(body)
 	}
 
-	var redisEndpoints []string
-	redisEndpointsEnv := os.Getenv("REDISENDPOINTS")
-	if !strings.Contains(redisEndpointsEnv, ",") {
-		redisEndpoints = []string{redisEndpointsEnv}
-	}
-	redisEndpoints = strings.Split(redisEndpointsEnv, ",")
+	redisEndpoints := strings.Split(os.Getenv("REDISENDPOINTS"), ",")
 
 	ingest := ingestor.New(
 		logger,
