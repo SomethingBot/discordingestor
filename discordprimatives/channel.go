@@ -15,10 +15,6 @@ type VoiceQualityMode int
 type Overwrite struct {
 }
 
-//User struct from https://discord.com/developers/docs/resources/user#user-object
-type User struct {
-}
-
 //ThreadMetadata struct from https://discord.com/developers/docs/resources/channel#thread-metadata-object
 type ThreadMetadata struct {
 }
