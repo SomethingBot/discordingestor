@@ -12,9 +12,12 @@ import (
 )
 
 var (
+	//GitCommit this package is compiled on
 	GitCommit string
-	GitTag    string
-	Mode      string
+	//GitTag this package is compiled on
+	GitTag string
+	//Mode this package is compiled on
+	Mode string
 )
 
 func main() {
