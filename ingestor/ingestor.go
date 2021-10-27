@@ -10,8 +10,10 @@ import (
 )
 
 var (
-	ErrorInjestorAlreadyOpen   = fmt.Errorf("ingestor already open")
-	ErrorInjestorAlreadyClosed = fmt.Errorf("ingestor already closed")
+	//ErrorIngestorAlreadyOpen is returned by Ingestor when Ingestor.Open() has already been called
+	ErrorIngestorAlreadyOpen = fmt.Errorf("ingestor already open")
+	//ErrorIngestorAlreadyClosed is returned by Ingestor when Ingestor.Close() has already been called
+	ErrorIngestorAlreadyClosed = fmt.Errorf("ingestor already closed")
 )
 
 type RedisConfig struct {
@@ -51,7 +53,7 @@ func (ingestor *Ingestor) Open() (err error) {
 	ingestor.openLock.Lock()
 	defer ingestor.openLock.Unlock()
 	if ingestor.open {
-		return ErrorInjestorAlreadyOpen
+		return ErrorIngestorAlreadyOpen
 	}
 
 	ingestor.DiscordClient = ingestor.discordClientMaker(strings.TrimSuffix(ingestor.DiscordAPIKey, "\n"))
@@ -61,7 +63,7 @@ func (ingestor *Ingestor) Open() (err error) {
 
 	ingestor.DiscordClient.SetIntents(discordprimatives.GatewayIntent(gateway.IntentGuildMessages | gateway.IntentGuildInvites | gateway.IntentGuildVoiceStates | gateway.IntentGuilds))
 
-	err = ingestor.DiscordClient.AddHandler(ingestor.handleMessages)
+	err = ingestor.DiscordClient.AddHandlerFunc(ingestor.handleMessages)
 	if err != nil {
 		return err
 	}
@@ -80,7 +82,7 @@ func (ingestor *Ingestor) Close() (err error) {
 	defer ingestor.openLock.Unlock()
 
 	if !ingestor.open {
-		return ErrorInjestorAlreadyClosed
+		return ErrorIngestorAlreadyClosed
 	}
 
 	err = ingestor.DiscordClient.Close()

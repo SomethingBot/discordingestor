@@ -16,7 +16,7 @@ func TestOpenClose(t *testing.T) {
 	}
 
 	err = ingestor.Open()
-	if err != ErrorInjestorAlreadyOpen {
+	if err != ErrorIngestorAlreadyOpen {
 		t.Fatalf("ingestor did not return ErrorIngestorAlreadyOpen when opened twice\n")
 	}
 
@@ -26,7 +26,7 @@ func TestOpenClose(t *testing.T) {
 	}
 
 	err = ingestor.Close()
-	if err != ErrorInjestorAlreadyClosed {
+	if err != ErrorIngestorAlreadyClosed {
 		t.Fatalf("ingestor did not return ErrorIngestorAlreadyClosed when closed twice\n")
 	}
 }

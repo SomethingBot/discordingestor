@@ -6,13 +6,20 @@ import (
 )
 
 var (
-	ErrorSessionAlreadyOpen   = fmt.Errorf("ingestor: session already open")
+	//ErrorSessionAlreadyOpen returned by a DiscordClient when already open
+	ErrorSessionAlreadyOpen = fmt.Errorf("ingestor: session already open")
+	//ErrorSessionAlreadyClosed returned by a DiscordClient when already closed
 	ErrorSessionAlreadyClosed = fmt.Errorf("ingestor: session already closed")
 )
 
+//DiscordClient is the interface called by Ingestor to make Discord API calls and set up the websocket
 type DiscordClient interface {
+	//Open DiscordClient
 	Open() error
+	//Close DiscordClient
 	Close() error
-	AddHandler(func(string)) error
+	//AddHandlerFunc that handles an Event
+	AddHandlerFunc(func(string)) error
+	//SetIntents to the Gateway; call before Open
 	SetIntents(discordprimatives.GatewayIntent)
 }

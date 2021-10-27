@@ -26,8 +26,8 @@ func (arikawaSession *Session) Close() error {
 	return nil
 }
 
-//AddHandler function to be called on an Event
-func (arikawaSession *Session) AddHandler(handlerFunc func(string)) error {
+//AddHandlerFunc to be called on an Event
+func (arikawaSession *Session) AddHandlerFunc(handlerFunc func(string)) error {
 	return nil
 }
 

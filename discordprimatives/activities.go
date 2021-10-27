@@ -33,6 +33,7 @@ func (status PresenceStatus) IsValid() bool {
 //ActivityType documented at https://discord.com/developers/docs/topics/gateway#activity-object-activity-types
 type ActivityType uint8
 
+//todo: potentially make ActivityType default value not the same as the discord API; makes the default value not ActivityTypeGame
 const (
 	//ActivityTypeGame is when ActivityType is a Game
 	ActivityTypeGame ActivityType = iota
@@ -48,6 +49,7 @@ const (
 	ActivityTypeCompeting
 )
 
+//IsValid ActivityType
 func (activityType ActivityType) IsValid() bool {
 	switch activityType {
 	case ActivityTypeGame:
@@ -104,6 +106,7 @@ type ActivitySecrets struct {
 type ActivityFlags uint8
 
 const (
+	//ActivityFlagNil is a purposefully invalid Flag; for it is the default value of ActivityFlags
 	ActivityFlagNil ActivityFlags = 0
 	//ActivityFlagInstance of an Activity
 	ActivityFlagInstance ActivityFlags = 1 << iota

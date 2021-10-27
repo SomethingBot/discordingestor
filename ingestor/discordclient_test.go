@@ -42,7 +42,7 @@ func (m *MockDiscordClient) Close() error {
 	return nil
 }
 
-func (m *MockDiscordClient) AddHandler(f func(string)) error {
+func (m *MockDiscordClient) AddHandlerFunc(f func(string)) error {
 	return nil
 }
 
