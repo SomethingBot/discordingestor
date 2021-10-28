@@ -11,20 +11,21 @@ type WelcomeScreen struct {
 }
 
 //VerificationLevel from https://discord.com/developers/docs/resources/guild#guild-object-verification-level
-type VerificationLevel int
+type VerificationLevel uint8
 
 //MessageNotificationsLevel from https://discord.com/developers/docs/resources/guild#guild-object-default-message-notification-level
-type MessageNotificationsLevel int
+type MessageNotificationsLevel uint8
 
 //ExplicitContentFilterLevel from https://discord.com/developers/docs/resources/guild#guild-object-explicit-content-filter-level
-type ExplicitContentFilterLevel int
+type ExplicitContentFilterLevel uint8
 
 //MFALevel from https://discord.com/developers/docs/resources/guild#guild-object-mfa-level
-type MFALevel int
+type MFALevel uint8
 
 //PremiumTier from https://discord.com/developers/docs/resources/guild#guild-object-premium-tier
-type PremiumTier int
+type PremiumTier uint8
 
+//todo: fill documentation and IsValid
 const (
 	PremiumTier1 PremiumTier = iota + 1
 	PremiumTier2
@@ -32,7 +33,7 @@ const (
 )
 
 //NSFWLevel from https://discord.com/developers/docs/resources/guild#guild-object-guild-nsfw-level
-type NSFWLevel int
+type NSFWLevel uint8
 
 //GuildFeature struct from https://discord.com/developers/docs/resources/guild#guild-object-guild-features
 type GuildFeature string

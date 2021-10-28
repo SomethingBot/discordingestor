@@ -27,7 +27,7 @@ type Role struct {
 	//Position of Role
 	Position int `json:"position"`
 	//Permissions for Role as a PermissionsBitSet
-	Permissions uint64 `json:"permissions,string"`
+	Permissions PermissionFlag `json:"permissions,string"`
 	//IsManaged by integration?
 	IsManaged bool `json:"managed"`
 	//IsMentionable Emoji?
