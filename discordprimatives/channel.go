@@ -1,6 +1,9 @@
 package discordprimatives
 
-import "time"
+import (
+	"math"
+	"time"
+)
 
 //SystemChannelFlag (bitwise, potential combination of flags) from https://discord.com/developers/docs/resources/guild#guild-object-system-channel-flags
 type SystemChannelFlag uint8
@@ -111,6 +114,17 @@ const (
 	OverwriteIDTypeUser
 )
 
+//IsValid OverwriteIDType
+func (overwriteIDType OverwriteIDType) IsValid() bool {
+	switch overwriteIDType {
+	case OverwriteIDTypeRole,
+		OverwriteIDTypeUser:
+		return true
+	default:
+		return false
+	}
+}
+
 //Overwrite struct from https://discord.com/developers/docs/resources/channel#overwrite-object
 type Overwrite struct {
 	//ID of Role or User to Overwrite
@@ -141,28 +155,81 @@ type ThreadMetadata struct {
 type MessageType uint8 //todo: finish commenting types
 
 const (
+	//MessageTypeDefault is the Default MessageType
 	MessageTypeDefault MessageType = iota
+	//MessageTypeRecipientAdd is the MessageType when a User is added to a Channel
 	MessageTypeRecipientAdd
+	//MessageTypeRecipientRemove is the MessageType when a User is removed from a Channel
 	MessageTypeRecipientRemove
+	//MessageTypeCall is when a MessageType is a Call
 	MessageTypeCall
+	//MessageTypeChannelNameChange is when a Channel Name is changed
 	MessageTypeChannelNameChange
+	//MessageTypeChannelIconChange is when a Channel Icon is changed
 	MessageTypeChannelIconChange
+	//MessageTypeChannelPinnedMessage is when a Channel message is changed
 	MessageTypeChannelPinnedMessage
+	//MessageTypeGuildMemberJoin is when a User is added to a channel
 	MessageTypeGuildMemberJoin
+	//MessageTypeUserPremiumGuildSubscription is when a GuildMember boosts a Guild
 	MessageTypeUserPremiumGuildSubscription
+	//MessageTypeUserPremiumGuildSubscriptionTier1 is when a Guild reaches PremiumTier1
 	MessageTypeUserPremiumGuildSubscriptionTier1
+	//MessageTypeUserPremiumGuildSubscriptionTier2 is when a Guild reaches PremiumTier2
 	MessageTypeUserPremiumGuildSubscriptionTier2
+	//MessageTypeUserPremiumGuildSubscriptionTier3 is when a Guild reaches PremiumTier3
 	MessageTypeUserPremiumGuildSubscriptionTier3
+	//MessageTypeChannelFollowAdd is when a User adds another ChannelTypeGuildNews to a Channel
 	MessageTypeChannelFollowAdd
+	//MessageTypeGuildDiscoveryGracePeriodInitialWarning is when a Guild is about to lose its spot in Guild Discovery
 	MessageTypeGuildDiscoveryGracePeriodInitialWarning
+	//MessageTypeGuildDiscoveryGracePeriodFinalWarning is when a Guild is imminent about to lose its spot in Guild Discovery
 	MessageTypeGuildDiscoveryGracePeriodFinalWarning
+	//MessageTypeThreadCreated is when a Thread has been created
 	MessageTypeThreadCreated
+	//MessageTypeReply is when a Message is a reply to another Message
 	MessageTypeReply
+	//MessageTypeChatInputCommand is when a message is a slash command? maybe? todo: what is this message type?
 	MessageTypeChatInputCommand
+	//MessageTypeThreadStarterMessage is the message that starts a Thread
 	MessageTypeThreadStarterMessage
+	//MessageTypeGuildInviteReminder is the message that a Guild should add an Invite
 	MessageTypeGuildInviteReminder
+	//MessageTypeContextMenuCommand is part of a slash command?
 	MessageTypeContextMenuCommand
+	//MessageTypeInvalid is an intentionally invalid MessageType
+	MessageTypeInvalid MessageType = math.MaxInt8
 )
+
+//IsValid MessageType
+func (messageType MessageType) IsValid() bool {
+	switch messageType {
+	case MessageTypeDefault,
+		MessageTypeRecipientAdd,
+		MessageTypeRecipientRemove,
+		MessageTypeCall,
+		MessageTypeChannelNameChange,
+		MessageTypeChannelIconChange,
+		MessageTypeChannelPinnedMessage,
+		MessageTypeGuildMemberJoin,
+		MessageTypeUserPremiumGuildSubscription,
+		MessageTypeUserPremiumGuildSubscriptionTier1,
+		MessageTypeUserPremiumGuildSubscriptionTier2,
+		MessageTypeUserPremiumGuildSubscriptionTier3,
+		MessageTypeChannelFollowAdd,
+		MessageTypeGuildDiscoveryGracePeriodInitialWarning,
+		MessageTypeGuildDiscoveryGracePeriodFinalWarning,
+		MessageTypeThreadCreated,
+		MessageTypeReply,
+		MessageTypeChatInputCommand,
+		MessageTypeThreadStarterMessage,
+		MessageTypeGuildInviteReminder,
+		MessageTypeContextMenuCommand:
+		return true
+	default:
+		return false
+	}
+}
 
 //ThreadMember struct from https://discord.com/developers/docs/resources/channel#thread-member-object
 type ThreadMember struct {

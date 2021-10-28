@@ -25,6 +25,12 @@ type MFALevel int
 //PremiumTier from https://discord.com/developers/docs/resources/guild#guild-object-premium-tier
 type PremiumTier int
 
+const (
+	PremiumTier1 PremiumTier = iota + 1
+	PremiumTier2
+	PremiumTier3
+)
+
 //NSFWLevel from https://discord.com/developers/docs/resources/guild#guild-object-guild-nsfw-level
 type NSFWLevel int
 
