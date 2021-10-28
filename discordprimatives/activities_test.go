@@ -93,7 +93,7 @@ func TestActivityFlags_IsValid(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name          string
-		activityFlags ActivityFlags
+		activityFlags ActivityFlag
 		want          bool
 	}{
 		{
@@ -156,7 +156,7 @@ func TestActivityFlags_Contains(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name          string
-		activityFlags ActivityFlags
+		activityFlags ActivityFlag
 		want          bool
 	}{
 		{

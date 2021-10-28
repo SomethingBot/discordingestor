@@ -104,14 +104,14 @@ type ActivitySecrets struct {
 	Match string `json:"match"`
 }
 
-//ActivityFlags documented at https://discord.com/developers/docs/topics/gateway#activity-object-activity-flags
-type ActivityFlags uint8
+//ActivityFlag (bitwise, potential combination of flags) documented at https://discord.com/developers/docs/topics/gateway#activity-object-activity-flags
+type ActivityFlag uint8
 
 const (
-	//ActivityFlagNil is a purposefully invalid Flag; for it is the default value of ActivityFlags
-	ActivityFlagNil ActivityFlags = 0
+	//ActivityFlagNil is a purposefully invalid Flag; for it is the default value of ActivityFlag
+	ActivityFlagNil ActivityFlag = 0
 	//ActivityFlagInstance of an Activity
-	ActivityFlagInstance ActivityFlags = 1 << iota
+	ActivityFlagInstance ActivityFlag = 1 << iota
 	//ActivityFlagJoin of an Activity
 	ActivityFlagJoin
 	//ActivityFlagSpectate of an Activity
@@ -122,18 +122,18 @@ const (
 	ActivityFlagSync
 	//ActivityFlagPlay of an Activity
 	ActivityFlagPlay
-	//ActivityFlagALL ANDed bitmask of all ActivityFlags
+	//ActivityFlagALL ANDed bitmask of all ActivityFlag(s)
 	ActivityFlagALL = ActivityFlagInstance | ActivityFlagJoin | ActivityFlagSpectate | ActivityFlagJoinRequest | ActivityFlagSync | ActivityFlagPlay
 )
 
-//IsValid ActivityFlags
-func (activityFlags ActivityFlags) IsValid() bool {
-	return ActivityFlagALL&activityFlags == activityFlags && activityFlags != ActivityFlagNil
+//IsValid ActivityFlag
+func (activityFlag ActivityFlag) IsValid() bool {
+	return ActivityFlagALL&activityFlag == activityFlag && activityFlag != ActivityFlagNil
 }
 
-//Contains ActivityFlags
-func (activityFlags ActivityFlags) Contains(flags ActivityFlags) bool {
-	return flags&activityFlags == flags && flags != ActivityFlagNil
+//Contains a ActivityFlag
+func (activityFlag ActivityFlag) Contains(flags ActivityFlag) bool {
+	return flags&activityFlag == flags && flags != ActivityFlagNil
 }
 
 //Buttons documented at https://discord.com/developers/docs/topics/gateway#activity-object-activity-buttons
@@ -173,7 +173,7 @@ type Activity struct {
 	//IsInstance of game session
 	IsInstance bool `json:"is_instance"`
 	//Flags of Activity ORed together
-	Flags ActivityFlags `json:"flags"`
+	Flags ActivityFlag `json:"flags"`
 	//Buttons shown in RichPresence (max 2)
 	Buttons []Buttons `json:"buttons"`
 }
