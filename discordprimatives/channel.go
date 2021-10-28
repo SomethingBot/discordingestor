@@ -9,7 +9,7 @@ const (
 	//SystemChannelFlagNil is a default Nil SystemChannelFlag
 	SystemChannelFlagNil SystemChannelFlag = 0
 	//SystemChannelFlagSuppressJoinNotifications SystemChannelFlag to suppress member join notifications
-	SystemChannelFlagSuppressJoinNotifications SystemChannelFlag = 1 << iota
+	SystemChannelFlagSuppressJoinNotifications SystemChannelFlag = 1 << (iota - 1)
 	//SystemChannelFlagPremiumSubscriptions SystemChannelFlag to suppress guild boost notifications
 	SystemChannelFlagPremiumSubscriptions
 	//SystemChannelFlagSuppressGuildReminderNotifications SystemChannelFlag to suppress guild setup tips

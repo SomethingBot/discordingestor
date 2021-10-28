@@ -111,7 +111,7 @@ const (
 	//ActivityFlagNil is a purposefully invalid Flag; for it is the default value of ActivityFlag
 	ActivityFlagNil ActivityFlag = 0
 	//ActivityFlagInstance of an Activity
-	ActivityFlagInstance ActivityFlag = 1 << iota
+	ActivityFlagInstance ActivityFlag = 1 << (iota - 1)
 	//ActivityFlagJoin of an Activity
 	ActivityFlagJoin
 	//ActivityFlagSpectate of an Activity
