@@ -46,6 +46,7 @@ func TestSystemChannelFlag_IsValid(t *testing.T) {
 }
 
 func TestSystemChannelFlag_Contains(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name              string
 		systemChannelFlag SystemChannelFlag
@@ -91,6 +92,7 @@ func TestSystemChannelFlag_Contains(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if got := tt.systemChannelFlag.Contains(tt.flags); got != tt.want {
 				t.Errorf("Contains() = %v, want %v", got, tt.want)
 			}
@@ -99,6 +101,7 @@ func TestSystemChannelFlag_Contains(t *testing.T) {
 }
 
 func TestChannelType_IsValid(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name        string
 		channelType ChannelType
@@ -167,6 +170,7 @@ func TestChannelType_IsValid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if got := tt.channelType.IsValid(); got != tt.want {
 				t.Errorf("IsValid() = %v, want %v", got, tt.want)
 			}

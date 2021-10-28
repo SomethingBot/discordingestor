@@ -3,6 +3,7 @@ package discordprimatives
 import "testing"
 
 func TestPresenceStatus_IsValid(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name   string
 		status PresenceStatus
@@ -31,6 +32,7 @@ func TestPresenceStatus_IsValid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if got := tt.status.IsValid(); got != tt.want {
 				t.Errorf("IsValid() = %v, want %v", got, tt.want)
 			}
@@ -39,6 +41,7 @@ func TestPresenceStatus_IsValid(t *testing.T) {
 }
 
 func TestActivityType_IsValid(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name         string
 		activityType ActivityType
@@ -82,6 +85,7 @@ func TestActivityType_IsValid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if got := tt.activityType.IsValid(); got != tt.want {
 				t.Errorf("IsValid() = %v, want %v", got, tt.want)
 			}
