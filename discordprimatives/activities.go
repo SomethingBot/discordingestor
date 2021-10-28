@@ -1,6 +1,8 @@
 package discordprimatives
 
-import "time"
+import (
+	"time"
+)
 
 //PresenceStatus documented at https://discord.com/developers/docs/topics/gateway#update-presence-status-types
 type PresenceStatus string
@@ -136,7 +138,10 @@ func (activityFlags ActivityFlags) Contains(flags ActivityFlags) bool {
 
 //Buttons documented at https://discord.com/developers/docs/topics/gateway#activity-object-activity-buttons
 type Buttons struct {
-	//todo: fill
+	//Label of Button (1-32 characters)
+	Label string `json:"label"`
+	//Url opened when clicking button (1-512 characters)
+	Url string `json:"url"`
 }
 
 //Activity struct documented at https://discord.com/developers/docs/topics/gateway#activity-object
