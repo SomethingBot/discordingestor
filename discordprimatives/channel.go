@@ -152,7 +152,7 @@ type ThreadMetadata struct {
 }
 
 //MessageType documented at https://discord.com/developers/docs/resources/channel#message-object-message-types
-type MessageType uint8 //todo: finish commenting types
+type MessageType uint8
 
 const (
 	//MessageTypeDefault is the Default MessageType
