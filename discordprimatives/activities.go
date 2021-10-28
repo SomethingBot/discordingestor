@@ -127,7 +127,7 @@ const (
 	//ActivityFlagPlay of an Activity
 	ActivityFlagPlay
 	//ActivityFlagALL ANDed bitmask of all ActivityFlag(s)
-	ActivityFlagALL = ActivityFlagInstance | ActivityFlagJoin | ActivityFlagSpectate | ActivityFlagJoinRequest | ActivityFlagSync | ActivityFlagPlay
+	ActivityFlagALL ActivityFlag = (1 << (iota - 1)) - 1
 )
 
 //IsValid ActivityFlag

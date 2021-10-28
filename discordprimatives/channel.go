@@ -18,7 +18,7 @@ const (
 	//SystemChannelFlagSuppressGuildReminderNotifications SystemChannelFlag to suppress guild setup tips
 	SystemChannelFlagSuppressGuildReminderNotifications
 	//SystemChannelFlagALL ANDed bitmask of all SystemChannelFlag(s)
-	SystemChannelFlagALL = SystemChannelFlagSuppressJoinNotifications | SystemChannelFlagPremiumSubscriptions | SystemChannelFlagSuppressGuildReminderNotifications
+	SystemChannelFlagALL SystemChannelFlag = (1 << (iota - 1)) - 1
 )
 
 //IsValid SystemChannelFlag
@@ -59,7 +59,7 @@ const (
 	//ChannelTypeGuildStageVoice is a Voice Channel for a GuildMember to many GuildMember(s) with options for choosing hosts or raising hands
 	ChannelTypeGuildStageVoice
 	//ChannelTypeINVALID is a purposefully invalid and not used ChannelType
-	ChannelTypeINVALID ChannelType = math.MaxInt8
+	ChannelTypeINVALID ChannelType = math.MaxUint8
 )
 
 //IsValid ChannelType
@@ -198,7 +198,7 @@ const (
 	//MessageTypeContextMenuCommand is part of a slash command?
 	MessageTypeContextMenuCommand
 	//MessageTypeInvalid is an intentionally invalid MessageType
-	MessageTypeInvalid MessageType = math.MaxInt8
+	MessageTypeInvalid MessageType = math.MaxUint8
 )
 
 //IsValid MessageType
