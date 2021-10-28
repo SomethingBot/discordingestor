@@ -2,8 +2,31 @@ package discordprimatives
 
 import "time"
 
-//SystemChannelFlag from https://discord.com/developers/docs/resources/guild#guild-object-system-channel-flags
+//SystemChannelFlag (bitwise, potential combination of flags) from https://discord.com/developers/docs/resources/guild#guild-object-system-channel-flags
 type SystemChannelFlag uint8
+
+const (
+	//SystemChannelFlagNil is a default Nil SystemChannelFlag
+	SystemChannelFlagNil SystemChannelFlag = 0
+	//SystemChannelFlagSuppressJoinNotifications SystemChannelFlag to suppress member join notifications
+	SystemChannelFlagSuppressJoinNotifications SystemChannelFlag = 1 << iota
+	//SystemChannelFlagPremiumSubscriptions SystemChannelFlag to suppress guild boost notifications
+	SystemChannelFlagPremiumSubscriptions
+	//SystemChannelFlagSuppressGuildReminderNotifications SystemChannelFlag to suppress guild setup tips
+	SystemChannelFlagSuppressGuildReminderNotifications
+	//SystemChannelFlagALL ANDed bitmask of all SystemChannelFlag(s)
+	SystemChannelFlagALL = SystemChannelFlagSuppressJoinNotifications | SystemChannelFlagPremiumSubscriptions | SystemChannelFlagSuppressGuildReminderNotifications
+)
+
+//IsValid SystemChannelFlag
+func (systemChannelFlag SystemChannelFlag) IsValid() bool {
+	return SystemChannelFlagALL&systemChannelFlag == systemChannelFlag && systemChannelFlag != SystemChannelFlagNil
+}
+
+//Contains a SystemChannelFlag
+func (systemChannelFlag SystemChannelFlag) Contains(flags SystemChannelFlag) bool {
+	return flags&systemChannelFlag == flags && flags != SystemChannelFlagNil
+}
 
 //ChannelType from https://discord.com/developers/docs/resources/channel#channel-object-channel-types
 type ChannelType int
