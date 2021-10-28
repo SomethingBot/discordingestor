@@ -59,7 +59,7 @@ const (
 	//ChannelTypeGuildStageVoice is a Voice Channel for a GuildMember to many GuildMember(s) with options for choosing hosts or raising hands
 	ChannelTypeGuildStageVoice
 	//ChannelTypeINVALID is a purposefully invalid and not used ChannelType
-	ChannelTypeINVALID ChannelType = 255
+	ChannelTypeINVALID ChannelType = math.MaxInt8
 )
 
 //IsValid ChannelType

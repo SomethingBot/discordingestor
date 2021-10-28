@@ -78,8 +78,8 @@ func TestActivityType_IsValid(t *testing.T) {
 			want:         true,
 		},
 		{
-			name:         "ActivityTypeINVALID",
-			activityType: 255,
+			name:         "ActivityTypeInvalid",
+			activityType: ActivityTypeInvalid,
 			want:         false,
 		},
 	}
@@ -141,8 +141,8 @@ func TestActivityFlags_IsValid(t *testing.T) {
 			want:          true,
 		},
 		{
-			name:          "ActivityFlagNil",
-			activityFlags: ActivityFlagNil,
+			name:          "ActivityFlagInvalid",
+			activityFlags: ActivityFlagInvalid,
 			want:          false,
 		},
 	}
@@ -194,8 +194,8 @@ func TestActivityFlags_Contains(t *testing.T) {
 			want:          true,
 		},
 		{
-			name:          "ActivityFlagNil",
-			activityFlags: ActivityFlagNil,
+			name:          "ActivityFlagInvalid",
+			activityFlags: ActivityFlagInvalid,
 			want:          false,
 		},
 		{

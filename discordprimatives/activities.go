@@ -1,6 +1,7 @@
 package discordprimatives
 
 import (
+	"math"
 	"time"
 )
 
@@ -49,6 +50,8 @@ const (
 	ActivityTypeCustom
 	//ActivityTypeCompeting is when ActivityType is Competing
 	ActivityTypeCompeting
+	//ActivityTypeInvalid is purposefully when ActivityType is Invalid
+	ActivityTypeInvalid = math.MaxUint8
 )
 
 //IsValid ActivityType
@@ -109,8 +112,8 @@ type ActivitySecrets struct {
 type ActivityFlag uint8
 
 const (
-	//ActivityFlagNil is a purposefully invalid Flag; for it is the default value of ActivityFlag
-	ActivityFlagNil ActivityFlag = 0
+	//ActivityFlagInvalid is a purposefully invalid Flag; for it is the default value of ActivityFlag
+	ActivityFlagInvalid ActivityFlag = 0
 	//ActivityFlagInstance of an Activity
 	ActivityFlagInstance ActivityFlag = 1 << (iota - 1)
 	//ActivityFlagJoin of an Activity
@@ -129,12 +132,12 @@ const (
 
 //IsValid ActivityFlag
 func (activityFlag ActivityFlag) IsValid() bool {
-	return ActivityFlagALL&activityFlag == activityFlag && activityFlag != ActivityFlagNil
+	return ActivityFlagALL&activityFlag == activityFlag && activityFlag != ActivityFlagInvalid
 }
 
 //Contains a ActivityFlag
 func (activityFlag ActivityFlag) Contains(flags ActivityFlag) bool {
-	return flags&activityFlag == flags && flags != ActivityFlagNil
+	return flags&activityFlag == flags && flags != ActivityFlagInvalid
 }
 
 //Buttons documented at https://discord.com/developers/docs/topics/gateway#activity-object-activity-buttons
