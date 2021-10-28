@@ -173,3 +173,36 @@ func TestChannelType_IsValid(t *testing.T) {
 		})
 	}
 }
+
+func TestVoiceQualityMode_IsValid(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name             string
+		voiceQualityMode VoiceQualityMode
+		want             bool
+	}{
+		{
+			name:             "VoiceQualityModeAuto",
+			voiceQualityMode: VoiceQualityModeAuto,
+			want:             true,
+		},
+		{
+			name:             "VoiceQualityModeFull",
+			voiceQualityMode: VoiceQualityModeFull,
+			want:             true,
+		},
+		{
+			name:             "VoiceQualityModeInvalid",
+			voiceQualityMode: VoiceQualityModeInvalid,
+			want:             false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if got := tt.voiceQualityMode.IsValid(); got != tt.want {
+				t.Errorf("IsValid() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

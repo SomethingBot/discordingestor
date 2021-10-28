@@ -41,7 +41,7 @@ const (
 	ChannelTypeGuildVoice
 	//ChannelTypeGroupDM is a direct message between multiple User(s)
 	ChannelTypeGroupDM
-	//ChannelTypeGuildCategory is an OrganizationalCategory (max 50 Channel(s))
+	//ChannelTypeGuildCategory is an OrganizationalCategory (max 50 Channel(s)) documented at https://support.discord.com/hc/en-us/articles/115001580171-Channel-Categories-101
 	ChannelTypeGuildCategory
 	//ChannelTypeGuildNews is a followable Channel that duplications messages into another Guild
 	ChannelTypeGuildNews
@@ -79,11 +79,27 @@ func (channelType ChannelType) IsValid() bool {
 	return true
 }
 
-//OrganizationalCategory documented at https://support.discord.com/hc/en-us/articles/115001580171-Channel-Categories-101
-type OrganizationalCategory uint8 //todo: fill
-
 //VoiceQualityMode struct from https://discord.com/developers/docs/resources/channel#channel-object-video-quality-modes
-type VoiceQualityMode int
+type VoiceQualityMode uint8
+
+const (
+	//VoiceQualityModeInvalid is an invalid VoiceQualityMode
+	VoiceQualityModeInvalid VoiceQualityMode = iota
+	//VoiceQualityModeAuto is where VoiceQualityMode is automatically chosen by Discord
+	VoiceQualityModeAuto
+	//VoiceQualityModeFull is 720p
+	VoiceQualityModeFull
+)
+
+//IsValid VoiceQualityMode
+func (voiceQualityMode VoiceQualityMode) IsValid() bool {
+	switch voiceQualityMode {
+	case VoiceQualityModeAuto, VoiceQualityModeFull:
+		return true
+	default:
+		return false
+	}
+}
 
 //Overwrite struct from https://discord.com/developers/docs/resources/channel#overwrite-object
 type Overwrite struct {
