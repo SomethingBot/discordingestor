@@ -22,14 +22,14 @@ const (
 //IsValid PresenceStatus
 func (status PresenceStatus) IsValid() bool {
 	switch status {
-	case PresenceStatusIdle:
-	case PresenceStatusDnd:
-	case PresenceStatusOnline:
-	case PresenceStatusOffline:
+	case PresenceStatusIdle,
+		PresenceStatusDnd,
+		PresenceStatusOnline,
+		PresenceStatusOffline:
+		return true
 	default:
 		return false
 	}
-	return true
 }
 
 //ActivityType documented at https://discord.com/developers/docs/topics/gateway#activity-object-activity-types
@@ -54,16 +54,17 @@ const (
 //IsValid ActivityType
 func (activityType ActivityType) IsValid() bool {
 	switch activityType {
-	case ActivityTypeGame:
-	case ActivityTypeStreaming:
-	case ActivityTypeListening:
-	case ActivityTypeWatching:
-	case ActivityTypeCustom:
-	case ActivityTypeCompeting:
+	case ActivityTypeGame,
+		ActivityTypeStreaming,
+		ActivityTypeListening,
+		ActivityTypeWatching,
+		ActivityTypeCustom,
+		ActivityTypeCompeting:
+		return true
 	default:
 		return false
 	}
-	return true
+
 }
 
 //ActivityTimestamp documented at https://discord.com/developers/docs/topics/gateway#activity-object-activity-timestamps
