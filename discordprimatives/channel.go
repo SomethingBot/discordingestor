@@ -101,16 +101,79 @@ func (voiceQualityMode VoiceQualityMode) IsValid() bool {
 	}
 }
 
+//OverwriteIDType documented at https://discord.com/developers/docs/resources/channel#overwrite-object-overwrite-structure
+type OverwriteIDType uint8
+
+const (
+	//OverwriteIDTypeRole is a Role ID
+	OverwriteIDTypeRole OverwriteIDType = iota
+	//OverwriteIDTypeUser is a User ID
+	OverwriteIDTypeUser
+)
+
 //Overwrite struct from https://discord.com/developers/docs/resources/channel#overwrite-object
 type Overwrite struct {
+	//ID of Role or User to Overwrite
+	ID Snowflake `json:"id"`
+	//Type of ID
+	Type OverwriteIDType `json:"type"`
+	//Allow is PermissionFlag for Overwrite to Allow a Permission
+	Allow PermissionFlag `json:"allow,string"`
+	//Deny is the PermissionFlag for Overwrite to Deny a Permission
+	Deny PermissionFlag `json:"deny,string"`
 }
 
 //ThreadMetadata struct from https://discord.com/developers/docs/resources/channel#thread-metadata-object
 type ThreadMetadata struct {
+	//IsArchived Thread
+	IsArchived bool `json:"archived"`
+	//AutoArchiveDuration in minutes (possible values are: 60, 1440, 4320, 10080)
+	AutoArchiveDuration int `json:"auto_archive_duration"`
+	//ArchiveTimestamp is when Thread archive status was last set
+	ArchiveTimestamp time.Time `json:"archive_timestamp"`
+	//IsLocked Thread
+	IsLocked bool `json:"locked"`
+	//IsInvitable by non-moderators
+	IsInvitable bool `json:"invitable"`
 }
+
+//MessageType documented at https://discord.com/developers/docs/resources/channel#message-object-message-types
+type MessageType uint8 //todo: finish commenting types
+
+const (
+	MessageTypeDefault MessageType = iota
+	MessageTypeRecipientAdd
+	MessageTypeRecipientRemove
+	MessageTypeCall
+	MessageTypeChannelNameChange
+	MessageTypeChannelIconChange
+	MessageTypeChannelPinnedMessage
+	MessageTypeGuildMemberJoin
+	MessageTypeUserPremiumGuildSubscription
+	MessageTypeUserPremiumGuildSubscriptionTier1
+	MessageTypeUserPremiumGuildSubscriptionTier2
+	MessageTypeUserPremiumGuildSubscriptionTier3
+	MessageTypeChannelFollowAdd
+	MessageTypeGuildDiscoveryGracePeriodInitialWarning
+	MessageTypeGuildDiscoveryGracePeriodFinalWarning
+	MessageTypeThreadCreated
+	MessageTypeReply
+	MessageTypeChatInputCommand
+	MessageTypeThreadStarterMessage
+	MessageTypeGuildInviteReminder
+	MessageTypeContextMenuCommand
+)
 
 //ThreadMember struct from https://discord.com/developers/docs/resources/channel#thread-member-object
 type ThreadMember struct {
+	//ID of Thread; only sent in GUILD_CREATE event
+	ID Snowflake `json:"id"`
+	//UserID of User; only sent in GUILD_CREATE event
+	UserID Snowflake `json:"user_id"`
+	//JoinTimeStamp when User last joined Thread
+	JoinTimeStamp Snowflake `json:"join_time_stamp"`
+	//Flags for user-thread settings, currently only for notifications
+	Flags MessageType `json:"flags"` //todo: find where this is documented, can't find the value possibilities; assuming MessageType
 }
 
 //Channel struct from https://discord.com/developers/docs/resources/channel#channel-object
@@ -145,7 +208,7 @@ type Channel struct {
 	IconHash string `json:"icon"`
 	//OwnerID of group DM or Thread
 	OwnerID Snowflake `json:"owner_id"`
-	//ApplicationID if group DM if bot-created
+	//ApplicationID if group DM is bot-created
 	ApplicationID Snowflake `json:"application_id"`
 	//ParentID for a Guild Channel: category, Thread: Channel where created
 	ParentID Snowflake `json:"parent_id"`
