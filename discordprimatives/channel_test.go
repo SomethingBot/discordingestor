@@ -97,3 +97,79 @@ func TestSystemChannelFlag_Contains(t *testing.T) {
 		})
 	}
 }
+
+func TestChannelType_IsValid(t *testing.T) {
+	tests := []struct {
+		name        string
+		channelType ChannelType
+		want        bool
+	}{
+		{
+			name:        "ChannelTypeGuildText",
+			channelType: ChannelTypeGuildText,
+			want:        true,
+		},
+		{
+			name:        "ChannelTypeDM",
+			channelType: ChannelTypeDM,
+			want:        true,
+		},
+		{
+			name:        "ChannelTypeGuildVoice",
+			channelType: ChannelTypeGuildVoice,
+			want:        true,
+		},
+		{
+			name:        "ChannelTypeGroupDM",
+			channelType: ChannelTypeGroupDM,
+			want:        true,
+		},
+		{
+			name:        "ChannelTypeGuildCategory",
+			channelType: ChannelTypeGuildCategory,
+			want:        true,
+		},
+		{
+			name:        "ChannelTypeGuildNews",
+			channelType: ChannelTypeGuildNews,
+			want:        true,
+		},
+		{
+			name:        "ChannelTypeGuildStore",
+			channelType: ChannelTypeGuildStore,
+			want:        true,
+		},
+		{
+			name:        "ChannelTypeGuildNewsThread",
+			channelType: ChannelTypeGuildNewsThread,
+			want:        true,
+		},
+		{
+			name:        "ChannelTypeGuildPublicThread",
+			channelType: ChannelTypeGuildPublicThread,
+			want:        true,
+		},
+		{
+			name:        "ChannelTypeGuildPrivateThread",
+			channelType: ChannelTypeGuildPrivateThread,
+			want:        true,
+		},
+		{
+			name:        "ChannelTypeGuildStageVoice",
+			channelType: ChannelTypeGuildStageVoice,
+			want:        true,
+		},
+		{
+			name:        "ChannelTypeINVALID",
+			channelType: ChannelTypeINVALID,
+			want:        false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.channelType.IsValid(); got != tt.want {
+				t.Errorf("IsValid() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

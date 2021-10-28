@@ -29,7 +29,58 @@ func (systemChannelFlag SystemChannelFlag) Contains(flags SystemChannelFlag) boo
 }
 
 //ChannelType from https://discord.com/developers/docs/resources/channel#channel-object-channel-types
-type ChannelType int
+type ChannelType uint8
+
+//todo: potentially change ChannelType to not follow discord, as default value is 0 and discord defines GuildText as 0
+const (
+	//ChannelTypeGuildText is a text Channel within a Guild
+	ChannelTypeGuildText ChannelType = iota
+	//ChannelTypeDM is a direct message between User(s)
+	ChannelTypeDM
+	//ChannelTypeGuildVoice is a voice Channel within a Guild
+	ChannelTypeGuildVoice
+	//ChannelTypeGroupDM is a direct message between multiple User(s)
+	ChannelTypeGroupDM
+	//ChannelTypeGuildCategory is an OrganizationalCategory (max 50 Channel(s))
+	ChannelTypeGuildCategory
+	//ChannelTypeGuildNews is a followable Channel that duplications messages into another Guild
+	ChannelTypeGuildNews
+	//ChannelTypeGuildStore is a Channel for game sellers
+	ChannelTypeGuildStore
+	//ChannelTypeGuildNewsThread is a Thread within ChannelTypeGuildNews
+	ChannelTypeGuildNewsThread ChannelType = iota + 3
+	//ChannelTypeGuildPublicThread is a Thread within ChannelTypeGuildText
+	ChannelTypeGuildPublicThread
+	//ChannelTypeGuildPrivateThread is a private Thread shown to those with Permission(s)
+	ChannelTypeGuildPrivateThread
+	//ChannelTypeGuildStageVoice is a Voice Channel for a GuildMember to many GuildMember(s) with options for choosing hosts or raising hands
+	ChannelTypeGuildStageVoice
+	//ChannelTypeINVALID is a purposefully invalid and not used ChannelType
+	ChannelTypeINVALID ChannelType = 255
+)
+
+//IsValid ChannelType
+func (channelType ChannelType) IsValid() bool {
+	switch channelType {
+	case ChannelTypeGuildText,
+		ChannelTypeDM,
+		ChannelTypeGuildVoice,
+		ChannelTypeGroupDM,
+		ChannelTypeGuildCategory,
+		ChannelTypeGuildNews,
+		ChannelTypeGuildStore,
+		ChannelTypeGuildNewsThread,
+		ChannelTypeGuildPublicThread,
+		ChannelTypeGuildPrivateThread,
+		ChannelTypeGuildStageVoice:
+	default:
+		return false
+	}
+	return true
+}
+
+//OrganizationalCategory documented at https://support.discord.com/hc/en-us/articles/115001580171-Channel-Categories-101
+type OrganizationalCategory uint8 //todo: fill
 
 //VoiceQualityMode struct from https://discord.com/developers/docs/resources/channel#channel-object-video-quality-modes
 type VoiceQualityMode int
