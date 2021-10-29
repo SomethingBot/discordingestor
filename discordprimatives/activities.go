@@ -128,13 +128,13 @@ const (
 	ActivityFlagSync
 	//ActivityFlagPlay of an Activity
 	ActivityFlagPlay
-	//ActivityFlagALL ANDed bitmask of all ActivityFlag(s)
-	ActivityFlagALL ActivityFlag = (1 << (iota - 1)) - 1
+	//ActivityFlagAll ANDed bitmask of all ActivityFlag(s)
+	ActivityFlagAll ActivityFlag = (1 << (iota - 1)) - 1
 )
 
 //IsValid ActivityFlag
 func (activityFlag ActivityFlag) IsValid() bool {
-	return ActivityFlagALL&activityFlag == activityFlag && activityFlag != ActivityFlagInvalid
+	return ActivityFlagAll&activityFlag == activityFlag && activityFlag != ActivityFlagInvalid
 }
 
 //Contains a ActivityFlag

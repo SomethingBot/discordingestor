@@ -22,6 +22,7 @@ func TestNew(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
 			t.Parallel()
 			if got := New(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("New() = %v, want %v", got, tt.want)
@@ -70,6 +71,7 @@ func TestMemoryKeyValueStore_GetSet(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			test := test
 			t.Parallel()
 			kvs := New()
 			err := kvs.Set(test.key, strings.NewReader(test.set))

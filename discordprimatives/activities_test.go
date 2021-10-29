@@ -2,10 +2,6 @@ package discordprimatives
 
 import "testing"
 
-type Test interface {
-	Test(t *testing.T)
-}
-
 func TestPresenceStatus_IsValid(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
@@ -142,9 +138,9 @@ func TestActivityFlags_IsValid(t *testing.T) {
 			want:          true,
 		},
 		{
-			name:          "ActivityFlagALL",
-			activityFlags: ActivityFlagALL,
-			want:          false,
+			name:          "ActivityFlagAll",
+			activityFlags: ActivityFlagAll,
+			want:          true,
 		},
 		{
 			name:          "ActivityFlagSync|ActivityFlagPlay",
@@ -216,8 +212,8 @@ func TestActivityFlags_Contains(t *testing.T) {
 			want:          true,
 		},
 		{
-			name:          "ActivityFlagALL",
-			activityFlags: ActivityFlagALL,
+			name:          "ActivityFlagAll",
+			activityFlags: ActivityFlagAll,
 			want:          true,
 		},
 	}
@@ -225,7 +221,7 @@ func TestActivityFlags_Contains(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt := tt
 			t.Parallel()
-			if got := ActivityFlagALL.Contains(tt.activityFlags); got != tt.want {
+			if got := ActivityFlagAll.Contains(tt.activityFlags); got != tt.want {
 				t.Errorf("Contains() = %v, want %v", got, tt.want)
 			}
 		})
