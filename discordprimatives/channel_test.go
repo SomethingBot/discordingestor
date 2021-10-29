@@ -343,3 +343,37 @@ func TestMessageType_IsValid(t *testing.T) {
 		})
 	}
 }
+
+func TestOverwriteIDType_IsValid(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name            string
+		overwriteIDType OverwriteIDType
+		want            bool
+	}{
+		{
+			name:            "OverwriteIDTypeRole",
+			overwriteIDType: OverwriteIDTypeRole,
+			want:            true,
+		},
+		{
+			name:            "OverwriteIDTypeUser",
+			overwriteIDType: OverwriteIDTypeUser,
+			want:            true,
+		},
+		{
+			name:            "OverwriteIDTypeInvalid",
+			overwriteIDType: 0313,
+			want:            false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
+			t.Parallel()
+			if got := tt.overwriteIDType.IsValid(); got != tt.want {
+				t.Errorf("IsValid() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
