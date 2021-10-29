@@ -10,6 +10,8 @@ type PresenceStatus string
 
 //Const list of PresenceStatus possibilities
 const (
+	//PresenceStatusNil is a Nil Presence Status
+	PresenceStatusNil PresenceStatus = ""
 	//PresenceStatusIdle of PresenceUpdate.Status
 	PresenceStatusIdle PresenceStatus = "idle"
 	//PresenceStatusDnd of PresenceUpdate.Status

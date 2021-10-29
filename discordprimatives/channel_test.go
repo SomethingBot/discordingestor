@@ -37,6 +37,7 @@ func TestSystemChannelFlag_IsValid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
 			t.Parallel()
 			if got := tt.systemChannelFlag.IsValid(); got != tt.want {
 				t.Errorf("IsValid() = %v, want %v", got, tt.want)
@@ -92,6 +93,7 @@ func TestSystemChannelFlag_Contains(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
 			t.Parallel()
 			if got := tt.systemChannelFlag.Contains(tt.flags); got != tt.want {
 				t.Errorf("Contains() = %v, want %v", got, tt.want)
@@ -170,6 +172,7 @@ func TestChannelType_IsValid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
 			t.Parallel()
 			if got := tt.channelType.IsValid(); got != tt.want {
 				t.Errorf("IsValid() = %v, want %v", got, tt.want)
@@ -203,6 +206,7 @@ func TestVoiceQualityMode_IsValid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
 			t.Parallel()
 			if got := tt.voiceQualityMode.IsValid(); got != tt.want {
 				t.Errorf("IsValid() = %v, want %v", got, tt.want)
@@ -331,6 +335,7 @@ func TestMessageType_IsValid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
 			t.Parallel()
 			if got := tt.messageType.IsValid(); got != tt.want {
 				t.Errorf("IsValid() = %v, want %v", got, tt.want)

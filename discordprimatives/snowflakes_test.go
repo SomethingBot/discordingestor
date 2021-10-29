@@ -25,6 +25,8 @@ func TestSnowflake_IsValid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
+			t.Parallel()
 			if got := tt.snowflake.IsValid(); got != tt.want {
 				t.Errorf("IsValid() = %v, want %v", got, tt.want)
 			}
@@ -46,6 +48,8 @@ func TestSnowflake_Timestamp(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
+			t.Parallel()
 			if got := tt.snowflake.Timestamp(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Timestamp() = %v, want %v", got, tt.want)
 			}
@@ -67,6 +71,8 @@ func TestSnowflake_InternalWorkerID(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
+			t.Parallel()
 			if got := tt.snowflake.InternalWorkerID(); got != tt.want {
 				t.Errorf("InternalWorkerID() = %v, want %v", got, tt.want)
 			}
@@ -88,6 +94,8 @@ func TestSnowflake_InternalProcessID(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
+			t.Parallel()
 			if got := tt.snowflake.InternalProcessID(); got != tt.want {
 				t.Errorf("InternalProcessID() = %v, want %v", got, tt.want)
 			}
@@ -109,6 +117,8 @@ func TestSnowflake_Increment(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
+			t.Parallel()
 			if got := tt.snowflake.Increment(); got != tt.want {
 				t.Errorf("Increment() = %v, want %v", got, tt.want)
 			}

@@ -2,6 +2,10 @@ package discordprimatives
 
 import "testing"
 
+type Test interface {
+	Test(t *testing.T)
+}
+
 func TestPresenceStatus_IsValid(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
@@ -11,27 +15,33 @@ func TestPresenceStatus_IsValid(t *testing.T) {
 	}{
 		{
 			name:   "PresenceStatusIdle",
-			status: "idle",
+			status: PresenceStatusIdle,
 			want:   true,
 		},
 		{
 			name:   "PresenceStatusDnd",
-			status: "dnd",
+			status: PresenceStatusDnd,
 			want:   true,
 		},
 		{
 			name:   "PresenceStatusOnline",
-			status: "offline",
+			status: PresenceStatusOnline,
+			want:   true,
+		},
+		{
+			name:   "PresenceStatusOffline",
+			status: PresenceStatusOffline,
 			want:   true,
 		},
 		{
 			name:   "PresenceStatusNil",
-			status: "",
+			status: PresenceStatusNil,
 			want:   false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
 			t.Parallel()
 			if got := tt.status.IsValid(); got != tt.want {
 				t.Errorf("IsValid() = %v, want %v", got, tt.want)
@@ -85,6 +95,7 @@ func TestActivityType_IsValid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
 			t.Parallel()
 			if got := tt.activityType.IsValid(); got != tt.want {
 				t.Errorf("IsValid() = %v, want %v", got, tt.want)
@@ -148,6 +159,7 @@ func TestActivityFlags_IsValid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
 			t.Parallel()
 			if got := tt.activityFlags.IsValid(); got != tt.want {
 				t.Errorf("IsValid() = %v, want %v", got, tt.want)
@@ -211,6 +223,7 @@ func TestActivityFlags_Contains(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
 			t.Parallel()
 			if got := ActivityFlagALL.Contains(tt.activityFlags); got != tt.want {
 				t.Errorf("Contains() = %v, want %v", got, tt.want)

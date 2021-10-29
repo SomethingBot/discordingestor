@@ -97,6 +97,7 @@ func TestGatewayIntent_IsValid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
 			t.Parallel()
 			if got := tt.gatewayIntent.IsValid(); got != tt.want {
 				t.Errorf("IsValid() = %v, want %v", got, tt.want)
@@ -218,6 +219,7 @@ func TestGatewayIntent_Contains(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
 			t.Parallel()
 			if got := tt.gatewayIntent.Contains(tt.intent); got != tt.want {
 				t.Errorf("Contains() = %v, want %v", got, tt.want)
