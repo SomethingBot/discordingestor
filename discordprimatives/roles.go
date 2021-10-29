@@ -21,7 +21,7 @@ type Role struct {
 	//IsHoist aka pinned in GuildMember list on client
 	IsHoist bool `json:"hoist"`
 	//IconHash is the Role's IconHash for grabbing from CDN
-	IconHash string `json:"icon"`
+	IconHash ImageHash `json:"icon"`
 	//UnicodeEmoji equivalent
 	UnicodeEmoji string `json:"unicode_emoji"`
 	//Position of Role

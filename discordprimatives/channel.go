@@ -272,7 +272,7 @@ type Channel struct {
 	//Recipients of a DM
 	Recipients []User `json:"recipients"`
 	//IconHash for grabbing Icon from CDN
-	IconHash string `json:"icon"`
+	IconHash ImageHash `json:"icon"`
 	//OwnerID of group DM or Thread
 	OwnerID Snowflake `json:"owner_id"`
 	//ApplicationID if group DM is bot-created

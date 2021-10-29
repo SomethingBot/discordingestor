@@ -44,14 +44,14 @@ type Guild struct {
 	ID Snowflake `json:"id,string"`
 	//Name (2-100 characters, excluding trailing and leading whitespace)
 	Name string `json:"name"`
-	//Icon hash; todo: function for Fully qualified url
-	IconHash string `json:"icon"`
+	//Icon hash for Icon
+	IconHash ImageHash `json:"icon"`
 	//IconHashInTemplate, returned when in the template object; todo: function for Fully qualified url
-	IconHashInTemplate string `json:"icon_hash"`
+	IconHashInTemplate ImageHash `json:"icon_hash"`
 	//SplashHash; todo: function for Fully qualified url
-	SplashHash string `json:"splash"`
+	SplashHash ImageHash `json:"splash"`
 	//DiscoverySplashHash; only present for Guilds with the "DISCOVERABLE" feature; todo: function for Fully qualified url
-	DiscoverySplashHash string `json:"discovery_splash"`
+	DiscoverySplashHash ImageHash `json:"discovery_splash"`
 	//IsBotOwner is true if Bot is Guild owner, only sent when using the GET Current User Guilds endpoint and are relative to the requested user
 	IsBotOwner bool `json:"owner"`
 	//OwnerID of guild
@@ -116,8 +116,8 @@ type Guild struct {
 	VanityUrlCode string `json:"vanity_url_code"`
 	//Description of a Community Guild
 	Description string `json:"description"`
-	//BannerHash todo: function for Fully qualified url
-	BannerHash string `json:"banner"`
+	//BannerHash for Guild
+	BannerHash ImageHash `json:"banner"`
 	//PremiumTier aka boost level
 	PremiumTier PremiumTier `json:"premium_tier"`
 	//PremiumSubscriptionCount is number of boosts Guild has
