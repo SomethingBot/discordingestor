@@ -100,3 +100,6 @@ func (permissionFlag PermissionFlag) IsValid() bool {
 func (permissionFlag PermissionFlag) Contains(flags PermissionFlag) bool {
 	return permissionFlag&flags == flags
 }
+
+//todo: implement permission base calculator
+//https://discord.com/developers/docs/topics/permissions#permission-overwrites
