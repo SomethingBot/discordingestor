@@ -81,6 +81,11 @@ func TestMemoryKeyValueStore_GetSet(t *testing.T) {
 				}
 			}
 			get, err := kvs.Get(test.key)
+			if err != nil {
+				if !test.wantErr {
+					t.Fatalf("wanted no error on get, got error (%v)\n", err)
+				}
+			}
 			getBytes, err := io.ReadAll(get)
 			if err != nil {
 				if !test.wantErr {
