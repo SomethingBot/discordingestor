@@ -43,7 +43,7 @@ func (arikawaSession *Session) Close() error {
 }
 
 //AddHandlerFunc to be called on an Event
-func (arikawaSession *Session) AddHandlerFunc(function ingestor.EventHandlerFunction) error {
+func (arikawaSession *Session) AddHandlerFunc(interface{}) error {
 	return nil
 }
 
