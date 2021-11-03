@@ -60,14 +60,12 @@ func (ingestor *Ingestor) Open() (err error) {
 		return err
 	}
 
-	ingestor.DiscordClient.SetIntents(discordprimatives.GatewayIntentGuildMessages | discordprimatives.GatewayIntentGuildInvites | discordprimatives.GatewayIntentGuildVoiceStates | discordprimatives.GatewayIntentGuilds)
-
 	err = ingestor.DiscordClient.AddHandlerFunc(ingestor.handleMessages)
 	if err != nil {
 		return err
 	}
 
-	err = ingestor.DiscordClient.Open()
+	err = ingestor.DiscordClient.Open(discordprimatives.GatewayIntentGuildMessages | discordprimatives.GatewayIntentGuildInvites | discordprimatives.GatewayIntentGuildVoiceStates | discordprimatives.GatewayIntentGuilds)
 	if err != nil {
 		return err
 	}
