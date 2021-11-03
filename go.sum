@@ -1,3 +1,5 @@
+github.com/SomethingBot/arikawa/v3 v3.0.0-rc.2 h1:0GrPjAUXN2d20y63e5Ogb8aq+xDmbQRnXQkpxnEr+Vw=
+github.com/SomethingBot/arikawa/v3 v3.0.0-rc.2/go.mod h1:sNqM/iGXuH87wEH1rpQBEY1PR0AAkRKJuUhJGOdo7To=
 github.com/diamondburned/arikawa/v3 v3.0.0-rc.2 h1:KP0c+FPykYQFjPwY0ezqx/kPgMZz6oXBXrADeMHnLpw=
 github.com/diamondburned/arikawa/v3 v3.0.0-rc.2/go.mod h1:sNqM/iGXuH87wEH1rpQBEY1PR0AAkRKJuUhJGOdo7To=
 github.com/gorilla/schema v1.2.0 h1:YufUaxZYCKGFuAq3c96BOhjgd5nmXiOY9NGzF247Tsc=

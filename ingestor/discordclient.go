@@ -12,6 +12,8 @@ var (
 	ErrorSessionAlreadyClosed = fmt.Errorf("ingestor: session already closed")
 )
 
+type EventHandlerFunction func(interface{})
+
 //DiscordClient is the interface called by Ingestor to make Discord API calls and set up the websocket
 type DiscordClient interface {
 	//Open DiscordClient
@@ -19,7 +21,7 @@ type DiscordClient interface {
 	//Close DiscordClient
 	Close() error
 	//AddHandlerFunc that handles an Event
-	AddHandlerFunc(func(string)) error
+	AddHandlerFunc(EventHandlerFunction) error
 	//SetIntents to the Gateway; call before Open
 	SetIntents(discordprimatives.GatewayIntent)
 }
