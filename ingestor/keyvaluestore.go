@@ -20,6 +20,8 @@ type KeyValueStore interface {
 	Close() error
 	Set(key string, reader io.Reader) error
 	Get(key string) (io.Reader, error)
+	Lock(key string) error
+	Unlock(key string) error
 	//Start() (Transaction, error)
 	//Commit(transaction Transaction) error
 	//Rollback(transaction Transaction) error

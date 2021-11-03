@@ -49,3 +49,11 @@ func (kvs *MemoryKeyValueStore) Get(key string) (io.Reader, error) {
 	}
 	return bytes.NewReader(val), nil
 }
+
+func (kvs *MemoryKeyValueStore) Lock(key string) error {
+	return nil
+}
+
+func (kvs *MemoryKeyValueStore) Unlock(key string) error {
+	return nil
+}
