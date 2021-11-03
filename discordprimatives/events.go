@@ -1,24 +1,24 @@
 package discordprimatives
 
-type DiscordGatewayEventType uint32
+type GatewayEventType uint32
 
 const (
-	//DiscordGatewayEventTypeHello documented at https://discord.com/developers/docs/topics/gateway#hello
-	DiscordGatewayEventTypeHello DiscordGatewayEventType = iota
-	//DiscordGatewayEventMessageCreate documented at https://discord.com/developers/docs/topics/gateway#message-create
-	DiscordGatewayEventMessageCreate
+	//GatewayEventTypeHello documented at https://discord.com/developers/docs/topics/gateway#hello
+	GatewayEventTypeHello GatewayEventType = iota
+	//GatewayEventMessageCreate documented at https://discord.com/developers/docs/topics/gateway#message-create
+	GatewayEventMessageCreate
 )
 
-type DiscordGatewayEvent interface {
-	Type() DiscordGatewayEventType
+type GatewayEvent interface {
+	Type() GatewayEventType
 }
 
-//DiscordGatewayEventHello documented at https://discord.com/developers/docs/topics/gateway#hello
-type DiscordGatewayEventHello struct {
+//GatewayEventHello documented at https://discord.com/developers/docs/topics/gateway#hello
+type GatewayEventHello struct {
 }
 
-func (discordGatewayHelloEvent DiscordGatewayEventHello) Type() DiscordGatewayEventType {
-	return DiscordGatewayEventTypeHello
+func (discordGatewayHelloEvent GatewayEventHello) Type() GatewayEventType {
+	return GatewayEventTypeHello
 }
 
 //EventMessageCreate documented at https://discord.com/developers/docs/topics/gateway#message-create
@@ -36,6 +36,6 @@ type EventMessageCreate struct {
 	Content string `json:"content"`
 }
 
-func (messageCreateEvent EventMessageCreate) Type() DiscordGatewayEventType {
-	return DiscordGatewayEventMessageCreate
+func (messageCreateEvent EventMessageCreate) Type() GatewayEventType {
+	return GatewayEventMessageCreate
 }
