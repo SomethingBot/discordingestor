@@ -15,11 +15,9 @@ var (
 //DiscordClient is the interface called by Ingestor to make Discord API calls and set up the websocket
 type DiscordClient interface {
 	//Open DiscordClient
-	Open() error
+	Open(discordIntent discordprimatives.GatewayIntent) error
 	//Close DiscordClient
 	Close() error
 	//AddHandlerFunc that handles an Event
 	AddHandlerFunc(interface{}) error
-	//SetIntents to the Gateway; call before Open
-	SetIntents(discordprimatives.GatewayIntent)
 }

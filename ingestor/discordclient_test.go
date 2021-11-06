@@ -14,7 +14,7 @@ type MockDiscordClient struct {
 	ClientState
 }
 
-func (m *MockDiscordClient) Open() error {
+func (m *MockDiscordClient) Open(discordIntent discordprimatives.GatewayIntent) error {
 	m.runningMutex.Lock()
 	defer func() {
 		m.runningMutex.Unlock()
