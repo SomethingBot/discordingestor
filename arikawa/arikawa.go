@@ -1,6 +1,7 @@
 package arikawa
 
 import (
+	"context"
 	"fmt"
 	"github.com/SomethingBot/discordingestor/discordprimatives"
 	"github.com/SomethingBot/discordingestor/ingestor"
@@ -8,46 +9,42 @@ import (
 	"github.com/diamondburned/arikawa/v3/session"
 )
 
-//Session implements the DiscordClient and works off an embed Arikawa client
-type Session struct {
+//Arikawa implements the DiscordClient and works off an embed Arikawa client
+type Arikawa struct {
 	//apikey without the "Bot " prefix
-	apikey string
+	apikey  string
+	session *session.Session
 }
 
-//New DiscordClient from a Session
+//New DiscordClient from a Arikawa
 func New(apikey string) ingestor.DiscordClient {
-	return &Session{apikey: apikey}
+	return &Arikawa{apikey: apikey}
 }
 
-//Open Arikawa Session
-func (arikawaSession *Session) Open() error {
-	ariSes, err := session.New("Bot " + arikawaSession.apikey)
+//Open Arikawa Arikawa
+func (arikawa *Arikawa) Open(discordIntent discordprimatives.GatewayIntent) error {
+	var err error
+	arikawa.session, err = session.NewWithIntents("Bot "+arikawa.apikey, gateway.Intents(discordIntent))
 	if err != nil {
-		return fmt.Errorf("Arikawa: failed to open session error (%w)\n", err) //todo: sentinel error
+		return fmt.Errorf("Arikawa: failed to open session error (%w)\n", err)
 	}
 
-	//tmp test for echo reply
-	_, err = ariSes.AddHandlerCheck(func(msg *gateway.MessageCreateEvent) {
-
-	})
+	err = arikawa.session.Open(context.Background())
 	if err != nil {
-		return fmt.Errorf("Arikawa: failed to add handler error (%w)\n", err)
+		return err
 	}
 
-	return nil
+	return err
 }
 
-//Close Arikawa Session
-func (arikawaSession *Session) Close() error {
-	return nil
+//Close Arikawa Arikawa
+func (arikawa *Arikawa) Close() error {
+	err := arikawa.session.Close()
+	return err
 }
 
 //AddHandlerFunc to be called on an Event
-func (arikawaSession *Session) AddHandlerFunc(interface{}) error {
-	return nil
-}
-
-//SetIntents to DiscordGateway
-func (arikawaSession *Session) SetIntents(discordIntent discordprimatives.GatewayIntent) {
-
+func (arikawa *Arikawa) AddHandlerFunc(f interface{}) error {
+	_, err := arikawa.session.AddHandlerCheck(f)
+	return fmt.Errorf("Arikawa: failed to add handler error (%w)\n", err)
 }

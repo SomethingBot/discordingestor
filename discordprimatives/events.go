@@ -1,12 +1,12 @@
 package discordprimatives
 
-type GatewayEventType uint32
+type GatewayEventType int
 
 const (
 	//GatewayEventTypeHello documented at https://discord.com/developers/docs/topics/gateway#hello
 	GatewayEventTypeHello GatewayEventType = iota
-	//GatewayEventMessageCreate documented at https://discord.com/developers/docs/topics/gateway#message-create
-	GatewayEventMessageCreate
+	//GatewayEventTypeMessageCreate documented at https://discord.com/developers/docs/topics/gateway#message-create
+	GatewayEventTypeMessageCreate
 )
 
 type GatewayEvent interface {
@@ -21,8 +21,8 @@ func (discordGatewayHelloEvent GatewayEventHello) Type() GatewayEventType {
 	return GatewayEventTypeHello
 }
 
-//EventMessageCreate documented at https://discord.com/developers/docs/topics/gateway#message-create
-type EventMessageCreate struct {
+//GatewayEventMessageCreate documented at https://discord.com/developers/docs/topics/gateway#message-create
+type GatewayEventMessageCreate struct {
 	//ID of Message
 	ID Snowflake `json:"id"`
 	//ChannelID Message was sent in
@@ -36,6 +36,6 @@ type EventMessageCreate struct {
 	Content string `json:"content"`
 }
 
-func (messageCreateEvent EventMessageCreate) Type() GatewayEventType {
-	return GatewayEventMessageCreate
+func (messageCreateEvent GatewayEventMessageCreate) Type() GatewayEventType {
+	return GatewayEventTypeMessageCreate
 }
