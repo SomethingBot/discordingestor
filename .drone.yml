@@ -13,6 +13,10 @@ steps:
     image: golang:1.16
     commands:
       - test -z $(go fmt ./...)
+  - name: tidy
+    image: golang:1.16
+    commands:
+      - test -z $(go mod tidy)
   - name: build
     image: golang:1.16
     commands:
