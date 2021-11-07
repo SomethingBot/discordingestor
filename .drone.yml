@@ -18,6 +18,7 @@ steps:
     commands:
       - go mod tidy
       - git diff --exit-code -- go.mod go.sum > test -z
+      - git diff --exit-code -- go.mod go.sum
   - name: build
     image: golang:1.16
     commands:
