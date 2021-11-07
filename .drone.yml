@@ -9,13 +9,10 @@ trigger:
     - pull_request
 
 steps:
-  - name: fmt
+  - name: fmt and tidy
     image: golang:1.16
     commands:
       - test -z $(go fmt ./...)
-  - name: tidy
-    image: golang:1.16
-    commands:
       - go mod tidy
       - git diff --exit-code -- go.mod go.sum
       - git diff --exit-code -- go.mod go.sum > test -z
