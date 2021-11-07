@@ -1,4 +1,4 @@
-package discordprimatives
+package primatives
 
 //GatewayIntent from https://discord.com/developers/docs/topics/gateway#gateway-intents
 type GatewayIntent uint16

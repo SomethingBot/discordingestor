@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"github.com/SomethingBot/discordingestor/discordprimatives"
+	"github.com/SomethingBot/discordingestor/discord/primatives"
 )
 
 type Client struct {
@@ -12,7 +12,7 @@ func New() *Client {
 	return &Client{}
 }
 
-func (c *Client) Open(discordIntent discordprimatives.GatewayIntent) error {
+func (c *Client) Open(discordIntent primatives.GatewayIntent) error {
 	panic("implement me")
 }
 

@@ -1,4 +1,4 @@
-package discordprimatives
+package primatives
 
 const (
 	//DiscordCDNBaseURL is the baseUrl for all CDN endpoints

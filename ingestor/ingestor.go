@@ -2,7 +2,7 @@ package ingestor
 
 import (
 	"fmt"
-	"github.com/SomethingBot/discordingestor/discordprimatives"
+	"github.com/SomethingBot/discordingestor/discord/primatives"
 	"log"
 	"strings"
 	"sync"
@@ -65,7 +65,7 @@ func (ingestor *Ingestor) Open() (err error) {
 		return err
 	}
 
-	err = ingestor.DiscordClient.Open(discordprimatives.GatewayIntentGuildMessages | discordprimatives.GatewayIntentGuildInvites | discordprimatives.GatewayIntentGuildVoiceStates | discordprimatives.GatewayIntentGuilds)
+	err = ingestor.DiscordClient.Open(primatives.GatewayIntentGuildMessages | primatives.GatewayIntentGuildInvites | primatives.GatewayIntentGuildVoiceStates | primatives.GatewayIntentGuilds)
 	if err != nil {
 		return err
 	}

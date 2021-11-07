@@ -1,4 +1,4 @@
-package discordprimatives
+package primatives
 
 import "testing"
 

@@ -2,7 +2,7 @@ package discord
 
 import (
 	"fmt"
-	"github.com/SomethingBot/discordingestor/discordprimatives"
+	"github.com/SomethingBot/discordingestor/discord/primatives"
 	"sync"
 )
 
@@ -11,15 +11,15 @@ var (
 	ErrorEventHandlerFunctionInvalid = fmt.Errorf("discord: unknown event handler function signature")
 )
 
-//GatewayEventHandler is an event handler specifically for discordprimatives.GatewayEvent(s)
+//GatewayEventHandler is an event handler specifically for primatives.GatewayEvent(s)
 type GatewayEventHandler struct {
 	handlersLock sync.RWMutex
-	handlers     map[discordprimatives.GatewayEventType][]interface{}
+	handlers     map[primatives.GatewayEventType][]interface{}
 }
 
 func newEventHandler() *GatewayEventHandler {
 	return &GatewayEventHandler{
-		handlers: make(map[discordprimatives.GatewayEventType][]interface{}),
+		handlers: make(map[primatives.GatewayEventType][]interface{}),
 	}
 }
 
@@ -28,8 +28,8 @@ func (eventHandler *GatewayEventHandler) RegisterEventHandlerFunction(handlerFun
 	eventHandler.handlersLock.Lock() //todo: maybe do this on every line, so we dont lock the entire map while doing a type check
 	defer eventHandler.handlersLock.Unlock()
 	switch handlerFunction.(type) {
-	case func(discordprimatives.GatewayEventHello):
-		eventHandler.handlers[discordprimatives.GatewayEventTypeHello] = append(eventHandler.handlers[discordprimatives.GatewayEventTypeHello], handlerFunction)
+	case func(primatives.GatewayEventHello):
+		eventHandler.handlers[primatives.GatewayEventTypeHello] = append(eventHandler.handlers[primatives.GatewayEventTypeHello], handlerFunction)
 	default:
 		return ErrorEventHandlerFunctionInvalid
 	}
@@ -41,8 +41,8 @@ func (eventHandler *GatewayEventHandler) RemoveEventHandlerFunction(handlerFunct
 	eventHandler.handlersLock.Lock()
 	defer eventHandler.handlersLock.Unlock()
 	switch handlerFunction.(type) {
-	case func(discordprimatives.GatewayEventHello):
-		for _, handler := range eventHandler.handlers[discordprimatives.GatewayEventTypeHello] {
+	case func(primatives.GatewayEventHello):
+		for _, handler := range eventHandler.handlers[primatives.GatewayEventTypeHello] {
 			if handler == handlerFunction {
 
 			}
@@ -54,7 +54,7 @@ func (eventHandler *GatewayEventHandler) RemoveEventHandlerFunction(handlerFunct
 }
 
 //FireEvent to registered EventHandlerFunctions; can return a ErrorEventInvalid if EventType is unknown
-func (eventHandler *GatewayEventHandler) FireEvent(event discordprimatives.GatewayEvent) error {
+func (eventHandler *GatewayEventHandler) FireEvent(event primatives.GatewayEvent) error {
 	eventHandler.handlersLock.RLock()
 	defer eventHandler.handlersLock.RUnlock()
 	handlersInterfaces, ok := eventHandler.handlers[event.Type()]
@@ -64,9 +64,9 @@ func (eventHandler *GatewayEventHandler) FireEvent(event discordprimatives.Gatew
 
 	for _, handler := range handlersInterfaces {
 		switch handler.(type) {
-		case func(discordprimatives.GatewayEventHello):
-			h := handler.(func(discordprimatives.GatewayEventHello)) //todo: maybe return error instead of panic-ing, although if we panic, this is a logic problem
-			go h(event.(discordprimatives.GatewayEventHello))
+		case func(primatives.GatewayEventHello):
+			h := handler.(func(primatives.GatewayEventHello)) //todo: maybe return error instead of panic-ing, although if we panic, this is a logic problem
+			go h(event.(primatives.GatewayEventHello))
 		default:
 			return ErrorEventInvalid
 		}

@@ -3,7 +3,7 @@ package arikawa
 import (
 	"context"
 	"fmt"
-	"github.com/SomethingBot/discordingestor/discordprimatives"
+	"github.com/SomethingBot/discordingestor/discord/primatives"
 	"github.com/SomethingBot/discordingestor/ingestor"
 	"github.com/diamondburned/arikawa/v3/gateway"
 	"github.com/diamondburned/arikawa/v3/session"
@@ -22,7 +22,7 @@ func New(apikey string) ingestor.DiscordClient {
 }
 
 //Open Arikawa Arikawa
-func (arikawa *Arikawa) Open(discordIntent discordprimatives.GatewayIntent) error {
+func (arikawa *Arikawa) Open(discordIntent primatives.GatewayIntent) error {
 	var err error
 	arikawa.session, err = session.NewWithIntents("Bot "+arikawa.apikey, gateway.Intents(discordIntent))
 	if err != nil {

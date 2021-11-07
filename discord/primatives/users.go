@@ -1,4 +1,4 @@
-package discordprimatives
+package primatives
 
 //ClientStatus struct documented at https://discord.com/developers/docs/topics/gateway#client-status-object
 type ClientStatus struct {

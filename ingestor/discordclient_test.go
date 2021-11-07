@@ -1,7 +1,7 @@
 package ingestor
 
 import (
-	"github.com/SomethingBot/discordingestor/discordprimatives"
+	"github.com/SomethingBot/discordingestor/discord/primatives"
 	"sync"
 )
 
@@ -14,7 +14,7 @@ type MockDiscordClient struct {
 	ClientState
 }
 
-func (m *MockDiscordClient) Open(discordIntent discordprimatives.GatewayIntent) error {
+func (m *MockDiscordClient) Open(discordIntent primatives.GatewayIntent) error {
 	m.runningMutex.Lock()
 	defer func() {
 		m.runningMutex.Unlock()
@@ -46,7 +46,7 @@ func (m *MockDiscordClient) AddHandlerFunc(interface{}) error {
 	return nil
 }
 
-func (m *MockDiscordClient) SetIntents(intent discordprimatives.GatewayIntent) {
+func (m *MockDiscordClient) SetIntents(intent primatives.GatewayIntent) {
 }
 
 func newMockSessionMaker(apikey string) DiscordClient {

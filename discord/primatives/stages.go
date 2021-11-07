@@ -1,4 +1,4 @@
-package discordprimatives
+package primatives
 
 //PrivacyLevel documented at https://discord.com/developers/docs/resources/stage-instance#stage-instance-object-privacy-level
 type PrivacyLevel int8

@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"github.com/SomethingBot/discordingestor/discordprimatives"
+	"github.com/SomethingBot/discordingestor/discord/primatives"
 	"sync"
 	"testing"
 	"time"
@@ -13,7 +13,7 @@ type testHandlerUser struct {
 	firedChan chan bool
 }
 
-func (th *testHandlerUser) Handle(helloEvent discordprimatives.GatewayEventHello) {
+func (th *testHandlerUser) Handle(helloEvent primatives.GatewayEventHello) {
 	th.Lock()
 	th.count++
 	th.Unlock()
@@ -33,7 +33,7 @@ func TestGatewayEventHandler_FireEvent(t *testing.T) {
 	handlerUserCount := 100
 
 	for i := 0; i < handlerUserCount; i++ {
-		err = eventHandler.FireEvent(discordprimatives.GatewayEventHello{})
+		err = eventHandler.FireEvent(primatives.GatewayEventHello{})
 		if err != nil {
 			t.Fatalf("wanted no error, got err (%v)\n", err)
 		}
@@ -58,13 +58,13 @@ func TestGatewayEventHandler_FireEvent(t *testing.T) {
 
 	firedChan := make(chan bool)
 	firedChan2 := make(chan bool)
-	err = eventHandler.RegisterEventHandlerFunction(func(hello discordprimatives.GatewayEventHello) {
+	err = eventHandler.RegisterEventHandlerFunction(func(hello primatives.GatewayEventHello) {
 		firedChan <- true
 	})
 	if err != nil {
 		t.Fatalf("wanted no error, got error (%v)\n", err)
 	}
-	err = eventHandler.RegisterEventHandlerFunction(func(hello discordprimatives.GatewayEventHello) {
+	err = eventHandler.RegisterEventHandlerFunction(func(hello primatives.GatewayEventHello) {
 		firedChan2 <- true
 	})
 	if err != nil {
@@ -74,7 +74,7 @@ func TestGatewayEventHandler_FireEvent(t *testing.T) {
 	count := 10
 
 	for i := 0; i < count; i++ {
-		err = eventHandler.FireEvent(discordprimatives.GatewayEventHello{})
+		err = eventHandler.FireEvent(primatives.GatewayEventHello{})
 		if err != nil {
 			t.Fatalf("wanted no error, got err (%v)\n", err)
 		}
