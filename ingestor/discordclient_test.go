@@ -14,7 +14,7 @@ type MockDiscordClient struct {
 	ClientState
 }
 
-func (m *MockDiscordClient) Open(discordIntent primatives.GatewayIntent) error {
+func (m *MockDiscordClient) Open() error {
 	m.runningMutex.Lock()
 	defer func() {
 		m.runningMutex.Unlock()
@@ -49,6 +49,6 @@ func (m *MockDiscordClient) AddHandlerFunc(interface{}) error {
 func (m *MockDiscordClient) SetIntents(intent primatives.GatewayIntent) {
 }
 
-func newMockSessionMaker(apikey string) DiscordClient {
+func newMockSessionMaker(apikey string, intents primatives.GatewayIntent) DiscordClient {
 	return &MockDiscordClient{}
 }

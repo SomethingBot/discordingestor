@@ -103,3 +103,63 @@ func (gatewayIntent GatewayIntent) IsValid() bool {
 func (gatewayIntent GatewayIntent) Contains(intent GatewayIntent) bool {
 	return intent&gatewayIntent == intent && intent != GatewayIntentNil
 }
+
+//GatewayOpcode of payload sent by Gateway
+type GatewayOpcode int
+
+const (
+	//GatewayOpcodeDispatch is received by a Client for a dispatched GatewayEvent
+	GatewayOpcodeDispatch GatewayOpcode = iota
+	//GatewayOpcodeHeartbeat is sent or received by a Client to keep a connection alive
+	GatewayOpcodeHeartbeat
+	//GatewayOpcodeIdentify is sent by a Client to start a new Session during an initial handshake
+	GatewayOpcodeIdentify
+	//GatewayOpcodePresenceUpdate is sent by a Client to update their Presence
+	GatewayOpcodePresenceUpdate
+	//GatewayOpcodeVoiceStateUpdate is sent by a Client to move between ChannelTypeGuildVoice
+	GatewayOpcodeVoiceStateUpdate
+	//GatewayOpcodeResume is sent by a Client to resume a previous Session
+	GatewayOpcodeResume GatewayOpcode = iota + 1
+	//GatewayOpcodeReconnect is received by a Client to inform them to disconnect and GatewayOpcodeResume
+	GatewayOpcodeReconnect
+	//GatewayOpcodeRequestGuildMembers is sent by a Client to request information about offline GuildMember(s) in a Guild.IsLarge
+	GatewayOpcodeRequestGuildMembers
+	//GatewayOpcodeRequestInvalidSession is received by a Client that a Session has been invalidated, Client should reconnect and GatewayOpcodeIdentify or GatewayOpcodeResume
+	GatewayOpcodeRequestInvalidSession
+	//GatewayOpcodeHello is received by a Client after connecting, containing the heartbeat_interval to use
+	GatewayOpcodeHello
+	//GatewayOpcodeHeartbeatACK is received by a Client acknowledging a successful GatewayOpcodeHeartbeat
+	GatewayOpcodeHeartbeatACK
+)
+
+//todo: isvalid functions for Opcodes (check if we send or receive a invalid opcode)
+
+//GatewayErrorEventCode documented at https://discord.com/developers/docs/topics/opcodes-and-status-codes#gateway-gateway-close-event-codes
+type GatewayErrorEventCode int
+
+const (
+	GatewayErrorEventCodeUnknownError         GatewayErrorEventCode = 4000
+	GatewayErrorEventCodeUnknownOpcode        GatewayErrorEventCode = 4001
+	GatewayErrorEventCodeDecodeError          GatewayErrorEventCode = 4002
+	GatewayErrorEventCodeNotAuthenticated     GatewayErrorEventCode = 4003
+	GatewayErrorEventCodeAuthenticationFailed GatewayErrorEventCode = 4004
+	GatewayErrorEventCodeAlreadyAuthenticated GatewayErrorEventCode = 4005
+	GatewayErrorEventCodeInvalidSequence      GatewayErrorEventCode = 4007
+	GatewayErrorEventCodeRateLimited          GatewayErrorEventCode = 4008
+	GatewayErrorEventCodeSessionTimedOut      GatewayErrorEventCode = 4009
+	GatewayErrorEventCodeInvalidShard         GatewayErrorEventCode = 4010
+	GatewayErrorEventCodeSharingRequired      GatewayErrorEventCode = 4011
+	GatewayErrorEventCodeInvalidAPIVersion    GatewayErrorEventCode = 4012
+	GatewayErrorEventCodeInvalidIntents       GatewayErrorEventCode = 4013
+	GatewayErrorEventCodeDisallowedIntents    GatewayErrorEventCode = 4014
+)
+
+//gEvent is an Opcode event from the Gateway, I really wish discord didn't send data like this, makes it essentially impossible to parse without multiple passes
+//maybe look into seeing if ETF is any better
+type gEvent struct {
+	//Opcode for payload;
+	Opcode         GatewayOpcode `json:"op"`
+	EventData      GatewayEvent  `json:"data"`
+	SequenceNumber int           `json:"s"`
+	EventName      string        `json:"t"`
+}

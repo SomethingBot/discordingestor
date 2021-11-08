@@ -24,7 +24,7 @@ type DiscordConfig struct {
 	DiscordClient DiscordClient
 }
 
-type DiscordClientMaker func(apikey string) DiscordClient
+type DiscordClientMaker func(apikey string, intents primatives.GatewayIntent) DiscordClient
 
 type ingestorState struct {
 	open     bool
@@ -55,7 +55,7 @@ func (ingestor *Ingestor) Open() (err error) {
 		return ErrorIngestorAlreadyOpen
 	}
 
-	ingestor.DiscordClient = ingestor.discordClientMaker(strings.TrimSuffix(ingestor.DiscordAPIKey, "\n"))
+	ingestor.DiscordClient = ingestor.discordClientMaker(strings.TrimSuffix(ingestor.DiscordAPIKey, "\n"), primatives.GatewayIntentGuildMessages|primatives.GatewayIntentGuildInvites|primatives.GatewayIntentGuildVoiceStates|primatives.GatewayIntentGuilds)
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func (ingestor *Ingestor) Open() (err error) {
 		return err
 	}
 
-	err = ingestor.DiscordClient.Open(primatives.GatewayIntentGuildMessages | primatives.GatewayIntentGuildInvites | primatives.GatewayIntentGuildVoiceStates | primatives.GatewayIntentGuilds)
+	err = ingestor.DiscordClient.Open()
 	if err != nil {
 		return err
 	}

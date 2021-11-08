@@ -2,22 +2,38 @@ package discord
 
 import (
 	"github.com/SomethingBot/discordingestor/discord/primatives"
+	_ "github.com/gorilla/websocket"
+	"sync"
 )
 
 type Client struct {
+	//apikey is the apikey without a "Bot " prefix
+	apikey       string
+	intents      primatives.GatewayIntent
+	running      bool
+	runningLock  sync.Mutex
 	eventHandler GatewayEventHandler
 }
 
-func New() *Client {
+//New Client using specified apikey without a "Bot " prefix
+func New(apikey string, intents primatives.GatewayIntent) *Client {
 	return &Client{}
 }
 
-func (c *Client) Open(discordIntent primatives.GatewayIntent) error {
-	panic("implement me")
+func (c *Client) Open() error {
+	c.runningLock.Lock()
+	defer c.runningLock.Unlock()
+
+	c.running = true
+	return nil
 }
 
 func (c *Client) Close() error {
-	panic("implement me")
+	c.runningLock.Lock()
+	defer c.runningLock.Unlock()
+
+	c.running = false
+	return nil
 }
 
 func (c *Client) AddHandlerFunc(i interface{}) error {
