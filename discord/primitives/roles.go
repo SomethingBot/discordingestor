@@ -1,4 +1,4 @@
-package primatives
+package primitives
 
 //RoleTag struct from https://discord.com/developers/docs/topics/permissions#role-object-role-tags-structure
 type RoleTag struct {

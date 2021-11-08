@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"github.com/SomethingBot/discordingestor/discord/primatives"
+	"github.com/SomethingBot/discordingestor/discord/primitives"
 	_ "github.com/gorilla/websocket"
 	"sync"
 )
@@ -9,14 +9,14 @@ import (
 type Client struct {
 	//apikey is the apikey without a "Bot " prefix
 	apikey       string
-	intents      primatives.GatewayIntent
+	intents      primitives.GatewayIntent
 	running      bool
 	runningLock  sync.Mutex
 	eventHandler GatewayEventHandler
 }
 
 //New Client using specified apikey without a "Bot " prefix
-func New(apikey string, intents primatives.GatewayIntent) *Client {
+func New(apikey string, intents primitives.GatewayIntent) *Client {
 	return &Client{}
 }
 

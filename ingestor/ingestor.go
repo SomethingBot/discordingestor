@@ -2,7 +2,7 @@ package ingestor
 
 import (
 	"fmt"
-	"github.com/SomethingBot/discordingestor/discord/primatives"
+	"github.com/SomethingBot/discordingestor/discord/primitives"
 	"log"
 	"strings"
 	"sync"
@@ -24,7 +24,7 @@ type DiscordConfig struct {
 	DiscordClient DiscordClient
 }
 
-type DiscordClientMaker func(apikey string, intents primatives.GatewayIntent) DiscordClient
+type DiscordClientMaker func(apikey string, intents primitives.GatewayIntent) DiscordClient
 
 type ingestorState struct {
 	open     bool
@@ -55,7 +55,7 @@ func (ingestor *Ingestor) Open() (err error) {
 		return ErrorIngestorAlreadyOpen
 	}
 
-	ingestor.DiscordClient = ingestor.discordClientMaker(strings.TrimSuffix(ingestor.DiscordAPIKey, "\n"), primatives.GatewayIntentGuildMessages|primatives.GatewayIntentGuildInvites|primatives.GatewayIntentGuildVoiceStates|primatives.GatewayIntentGuilds)
+	ingestor.DiscordClient = ingestor.discordClientMaker(strings.TrimSuffix(ingestor.DiscordAPIKey, "\n"), primitives.GatewayIntentGuildMessages|primitives.GatewayIntentGuildInvites|primitives.GatewayIntentGuildVoiceStates|primitives.GatewayIntentGuilds)
 	if err != nil {
 		return err
 	}

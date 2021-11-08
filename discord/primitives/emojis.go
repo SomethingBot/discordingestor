@@ -1,4 +1,4 @@
-package primatives
+package primitives
 
 //Emoji struct from https://discord.com/developers/docs/resources/emoji#emoji-object
 type Emoji struct {

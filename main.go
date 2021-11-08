@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/SomethingBot/discordingestor/discord"
-	"github.com/SomethingBot/discordingestor/discord/primatives"
+	"github.com/SomethingBot/discordingestor/discord/primitives"
 	"github.com/SomethingBot/discordingestor/ingestor"
 	"io"
 	"log"
@@ -60,7 +60,7 @@ func main() {
 
 	ingest := ingestor.New(
 		logger,
-		func(apikey string, intents primatives.GatewayIntent) ingestor.DiscordClient {
+		func(apikey string, intents primitives.GatewayIntent) ingestor.DiscordClient {
 			return discord.New(apikey, intents)
 		},
 		ingestor.DiscordConfig{DiscordAPIKey: discordAPIKey},

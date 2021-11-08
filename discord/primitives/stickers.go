@@ -1,4 +1,4 @@
-package primatives
+package primitives
 
 //StickerType documented at https://discord.com/developers/docs/resources/sticker#sticker-object-sticker-types
 type StickerType uint8

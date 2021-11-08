@@ -1,4 +1,4 @@
-package primatives
+package primitives
 
 //PermissionFlag documented at https://discord.com/developers/docs/topics/permissions#permissions
 //Check PermissionFlag.IsValid() then PermissionFlag.HasPermission()

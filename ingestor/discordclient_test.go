@@ -1,7 +1,7 @@
 package ingestor
 
 import (
-	"github.com/SomethingBot/discordingestor/discord/primatives"
+	"github.com/SomethingBot/discordingestor/discord/primitives"
 	"sync"
 )
 
@@ -46,9 +46,9 @@ func (m *MockDiscordClient) AddHandlerFunc(interface{}) error {
 	return nil
 }
 
-func (m *MockDiscordClient) SetIntents(intent primatives.GatewayIntent) {
+func (m *MockDiscordClient) SetIntents(intent primitives.GatewayIntent) {
 }
 
-func newMockSessionMaker(apikey string, intents primatives.GatewayIntent) DiscordClient {
+func newMockSessionMaker(apikey string, intents primitives.GatewayIntent) DiscordClient {
 	return &MockDiscordClient{}
 }

@@ -1,4 +1,4 @@
-package primatives
+package primitives
 
 //GatewayEventType documented at https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events
 type GatewayEventType int
