@@ -7,4 +7,4 @@
 ## About
 
 Discord Ingestor is a Go (Golang) Discord data ingestor designed to have interchangeable parts like the Discord State
-and a client Library like Arikawa 
+and a client Library like Arikawa (with a shim)

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/SomethingBot/discordingestor/arikawa"
+	"github.com/SomethingBot/discordingestor/discord"
 	"github.com/SomethingBot/discordingestor/ingestor"
 	"io"
 	"log"
@@ -59,7 +59,7 @@ func main() {
 
 	ingest := ingestor.New(
 		logger,
-		arikawa.New,
+		discord.New,
 		ingestor.DiscordConfig{DiscordAPIKey: discordAPIKey},
 		ingestor.RedisConfig{RedisEndPoints: redisEndpoints},
 	)
