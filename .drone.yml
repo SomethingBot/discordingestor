@@ -16,10 +16,11 @@ steps:
       - go mod tidy
       - git diff --exit-code -- go.mod go.sum
       - git diff --exit-code -- go.mod go.sum > test -z
-  - name: build
+  - name: build and vet
     image: golang:1.16
     commands:
       - go build .
+      - go vet -race -v ./...
   - name: test
     image: golang:1.16
     commands:
@@ -38,10 +39,6 @@ depends_on:
   - build
 
 steps:
-  - name: vet
-    image: golang:1.16
-    commands:
-      - go vet -race -v ./...
   - name: test-integration
     image: golang:1.16
     commands:
