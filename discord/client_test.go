@@ -7,7 +7,7 @@ import (
 )
 
 func TestClient_OpenClose(t *testing.T) {
-	if !testing.Short() {
+	if testing.Short() {
 		t.Skipf("test short flag set, skipping integration tests")
 	}
 
