@@ -38,7 +38,7 @@ steps:
   - name: vet
     image: golang:1.16
     commands:
-      - go vet -v ./...
+      - go vet -race -v ./...
   - name: test
     image: golang:1.16
     commands:
