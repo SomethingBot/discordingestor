@@ -1,5 +1,11 @@
 package primitives
 
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
 //GatewayIntent from https://discord.com/developers/docs/topics/gateway#gateway-intents
 type GatewayIntent uint16
 
@@ -102,6 +108,37 @@ func (gatewayIntent GatewayIntent) IsValid() bool {
 //Contains another GatewayIntent
 func (gatewayIntent GatewayIntent) Contains(intent GatewayIntent) bool {
 	return intent&gatewayIntent == intent && intent != GatewayIntentNil
+}
+
+//GetGatewayURI returns the current Discord Gateway WSS URL
+func GetGatewayURI() (string, error) {
+	httpClient := http.Client{}
+	resp, err := httpClient.Get("https://discord.com/api/gateway")
+	if err != nil {
+		return "", err
+	}
+
+	urlJson := struct {
+		Url string `json:"url"`
+	}{}
+
+	decoder := json.NewDecoder(resp.Body)
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&urlJson)
+	if err != nil {
+		err2 := resp.Body.Close()
+		if err2 != nil {
+			return "", fmt.Errorf("could not close body (%v), after error (%w)", err2, err)
+		}
+		return "", err
+	}
+
+	err = resp.Body.Close()
+	if err != nil {
+		return "", err
+	}
+
+	return urlJson.Url, err
 }
 
 //GatewayOpcode of payload sent by Gateway
