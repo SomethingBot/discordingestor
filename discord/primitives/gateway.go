@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 )
 
 //GatewayIntent from https://discord.com/developers/docs/topics/gateway#gateway-intents
@@ -110,12 +111,12 @@ func (gatewayIntent GatewayIntent) Contains(intent GatewayIntent) bool {
 	return intent&gatewayIntent == intent && intent != GatewayIntentNil
 }
 
-//GetGatewayURI returns the current Discord Gateway WSS URL
-func GetGatewayURI() (string, error) {
+//GetGatewayURI returns the current Discord Gateway WSS URL //todo: make it so test doesn't have to hit server
+func GetGatewayURI() (url.URL, error) {
 	httpClient := http.Client{}
 	resp, err := httpClient.Get("https://discord.com/api/gateway")
 	if err != nil {
-		return "", err
+		return url.URL{}, err
 	}
 
 	urlJson := struct {
@@ -128,17 +129,22 @@ func GetGatewayURI() (string, error) {
 	if err != nil {
 		err2 := resp.Body.Close()
 		if err2 != nil {
-			return "", fmt.Errorf("could not close body (%v), after error (%w)", err2, err)
+			return url.URL{}, fmt.Errorf("could not close body (%v), after error (%w)", err2, err)
 		}
-		return "", err
+		return url.URL{}, err
 	}
 
 	err = resp.Body.Close()
 	if err != nil {
-		return "", err
+		return url.URL{}, err
 	}
 
-	return urlJson.Url, err
+	uri, err := url.ParseRequestURI(urlJson.Url)
+	if err != nil {
+		return url.URL{}, err
+	}
+
+	return *uri, err
 }
 
 //GatewayOpcode of payload sent by Gateway
