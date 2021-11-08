@@ -46,3 +46,6 @@ steps:
     image: golang:1.16
     commands:
       - go test -v ./...
+    environment:
+      discordapikey:
+        from_secret: discordapikey

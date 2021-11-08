@@ -11,12 +11,18 @@ func TestClient_OpenClose(t *testing.T) {
 		t.Skipf("test short flag set, skipping integration tests")
 	}
 
-	apikey, err := os.ReadFile("../apikeyfile")
-	if err != nil {
-		t.Fatalf("error on reading apikeyfile (%v)\n", err)
+	var apikey string
+	apikey = os.Getenv("discordapikey")
+	if apikey == "" {
+		apikeyBytes, err := os.ReadFile("../apikeyfile")
+		if err != nil {
+			t.Fatalf("error on reading apikeyfile (%v)\n", err)
+		}
+		apikey = string(apikeyBytes)
 	}
+
 	client := New(string(apikey), primitives.GatewayIntentGuildMessages)
-	err = client.Open()
+	err := client.Open()
 	if err != nil {
 		t.Fatalf("error on open (%v)\n", err)
 	}
