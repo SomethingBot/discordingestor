@@ -20,7 +20,10 @@ steps:
     image: golang:1.16
     commands:
       - go build .
-
+  - name: test
+    image: golang:1.16
+    commands:
+      - go test -v ./... -short
 ---
 kind: pipeline
 type: docker
@@ -39,7 +42,7 @@ steps:
     image: golang:1.16
     commands:
       - go vet -race -v ./...
-  - name: test
+  - name: test-integration
     image: golang:1.16
     commands:
       - go test -v ./...

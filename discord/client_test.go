@@ -7,6 +7,10 @@ import (
 )
 
 func TestClient_OpenClose(t *testing.T) {
+	if !testing.Short() {
+		t.Skipf("test short flag set, skipping integration tests")
+	}
+
 	apikey, err := os.ReadFile("../apikeyfile")
 	if err != nil {
 		t.Fatalf("error on reading apikeyfile (%v)\n", err)
