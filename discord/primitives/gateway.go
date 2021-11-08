@@ -3,6 +3,7 @@ package primitives
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/SomethingBot/discordingestor/discord/libinfo"
 	"net/http"
 	"net/url"
 )
@@ -113,8 +114,14 @@ func (gatewayIntent GatewayIntent) Contains(intent GatewayIntent) bool {
 
 //GetGatewayURI returns the current Discord Gateway WSS URL //todo: make it so test doesn't have to hit server
 func GetGatewayURI() (url.URL, error) {
+	req, err := http.NewRequest("GET", "https://discord.com/api/gateway", nil)
+	if err != nil {
+		return url.URL{}, err
+	}
+	req.Header.Set("User-Agent", libinfo.BotUserAgent)
+
 	httpClient := http.Client{}
-	resp, err := httpClient.Get("https://discord.com/api/gateway")
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return url.URL{}, err
 	}

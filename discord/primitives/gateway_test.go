@@ -1,6 +1,8 @@
 package primitives
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGatewayIntent_IsValid(t *testing.T) {
 	t.Parallel()
