@@ -6,5 +6,5 @@ const (
 	//BotLibraryVersion is the version of the library; this is the git tag
 	BotLibraryVersion = "0.0.0"
 	//BotUserAgent is the UserAgent of all library http requests
-	BotUserAgent = "SomethingBotDiscordIngestor/" + BotLibraryVersion
+	BotUserAgent = "DiscordBot (" + BotLibraryUrl + ", " + BotLibraryVersion + ")"
 )
