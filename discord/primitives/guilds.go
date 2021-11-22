@@ -25,12 +25,29 @@ type MFALevel uint8
 //PremiumTier from https://discord.com/developers/docs/resources/guild#guild-object-premium-tier
 type PremiumTier uint8
 
-//todo: fill documentation and IsValid
 const (
-	PremiumTier1 PremiumTier = iota + 1
+	//PremiumTier0 is no Server Boost's perks
+	PremiumTier0 PremiumTier = iota
+	//PremiumTier1 is Server Boost level 1 perks
+	PremiumTier1
+	//PremiumTier2 is Server Boost level 2 perks
 	PremiumTier2
+	//PremiumTier3 is Server Boost level 3 perks
 	PremiumTier3
 )
+
+//IsValid PremiumTier
+func (premiumTier PremiumTier) IsValid() bool {
+	switch premiumTier {
+	case PremiumTier0,
+		PremiumTier1,
+		PremiumTier2,
+		PremiumTier3:
+		return true
+	default:
+		return false
+	}
+}
 
 //NSFWLevel from https://discord.com/developers/docs/resources/guild#guild-object-guild-nsfw-level
 type NSFWLevel uint8
