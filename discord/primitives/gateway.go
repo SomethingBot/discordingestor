@@ -154,7 +154,7 @@ func GetGatewayURI() (url.URL, error) {
 	return *uri, err
 }
 
-//GatewayOpcode of payload sent by Gateway
+//GatewayOpcode of payload sent by Gateway; documented at https://discord.com/developers/docs/topics/opcodes-and-status-codes#gateway-gateway-opcodes
 type GatewayOpcode int
 
 const (
@@ -209,7 +209,7 @@ const (
 type gEvent struct {
 	//Opcode for payload;
 	Opcode         GatewayOpcode `json:"op"`
-	EventData      GatewayEvent  `json:"data"`
-	SequenceNumber int           `json:"s"`
-	EventName      string        `json:"t"`
+	EventData      interface{}   `json:"d"`
+	SequenceNumber int           `json:"s,omitempty"`
+	EventName      string        `json:"t,omitempty"`
 }
