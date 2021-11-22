@@ -712,3 +712,17 @@ func (GatewayEventGuildScheduledEventUserRemove) Type() GatewayEventType {
 func (GatewayEventGuildScheduledEventUserRemove) Opcode() GatewayOpcode {
 	return GatewayOpcodeDispatch
 }
+
+//GatewayEventIntegrationCreate documented at https://discord.com/developers/docs/topics/gateway#integration-create
+type GatewayEventIntegrationCreate struct {
+	//GuildID is the ID of the Guild the Integration is created in
+	GuildID Snowflake `json:"guild_id"`
+}
+
+func (GatewayEventIntegrationCreate) Type() GatewayEventType {
+	return GatewayEventTypeGuildIntegrationCreate
+}
+
+func (GatewayEventIntegrationCreate) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
