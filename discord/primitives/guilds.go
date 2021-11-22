@@ -156,3 +156,115 @@ type Guild struct {
 	//Stickers in Guild
 	Stickers []Sticker `json:"stickers"`
 }
+
+//GuildScheduledEventPrivacyLevel documented at https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-privacy-level
+type GuildScheduledEventPrivacyLevel uint8
+
+const (
+	//GuildScheduledEventPrivacyLevelGuildOnly is only accessible to GuildMember's
+	GuildScheduledEventPrivacyLevelGuildOnly GuildScheduledEventPrivacyLevel = 2
+)
+
+//IsValid GuildScheduledEventPrivacyLevel
+func (guildScheduledEventPrivacyLevel GuildScheduledEventPrivacyLevel) IsValid() bool {
+	switch guildScheduledEventPrivacyLevel {
+	case GuildScheduledEventPrivacyLevelGuildOnly:
+		return true
+	default:
+		return false
+	}
+}
+
+//GuildScheduledEventStatus documented at https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-status
+type GuildScheduledEventStatus uint8
+
+const (
+	//GuildScheduledEventStatusNone is a zero value GuildScheduledEventStatus from Discord
+	GuildScheduledEventStatusNone GuildScheduledEventStatus = iota
+	//GuildScheduledEventStatusScheduled transitions to GuildScheduledEventStatusActive
+	GuildScheduledEventStatusScheduled
+	//GuildScheduledEventStatusActive transitions to GuildScheduledEventStatusCompleted
+	GuildScheduledEventStatusActive
+	//GuildScheduledEventStatusCompleted transitions to GuildScheduledEventStatusCanceled
+	GuildScheduledEventStatusCompleted
+	//GuildScheduledEventStatusCanceled is a canceled GuildScheduledEvent
+	GuildScheduledEventStatusCanceled
+)
+
+//IsValid GuildScheduledEventStatus
+func (guildScheduledEventStatus GuildScheduledEventStatus) IsValid() bool {
+	switch guildScheduledEventStatus {
+	case GuildScheduledEventStatusScheduled,
+		GuildScheduledEventStatusActive,
+		GuildScheduledEventStatusCompleted,
+		GuildScheduledEventStatusCanceled:
+		return true
+	default:
+		return false
+	}
+}
+
+//GuildScheduledEventEntityMetadata is documented at https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-entity-metadata
+type GuildScheduledEventEntityMetadata struct {
+	//Location of Event (1-100 characters)
+	Location string `json:"location"`
+}
+
+//GuildScheduledEventEntityType documented at https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-entity-types
+type GuildScheduledEventEntityType int
+
+const (
+	//GuildScheduledEventEntityTypeNone is an invalid GuildScheduledEventEntityType from Discord
+	GuildScheduledEventEntityTypeNone GuildScheduledEventEntityType = iota
+	//GuildScheduledEventEntityTypeStageInstance is an GuildScheduledEvent at a ChannelTypeGuildStageVoice
+	GuildScheduledEventEntityTypeStageInstance
+	//GuildScheduledEventEntityTypeVoice is a GuildScheduledEvent at a ChannelTypeGuildVoice
+	GuildScheduledEventEntityTypeVoice
+	//GuildScheduledEventEntityTypeExternal is a GuildScheduledEvent at a platform otherwise listed
+	GuildScheduledEventEntityTypeExternal
+)
+
+func (guildScheduledEventEntityType GuildScheduledEventEntityType) IsValid() bool {
+	switch guildScheduledEventEntityType {
+	case GuildScheduledEventEntityTypeStageInstance,
+		GuildScheduledEventEntityTypeVoice,
+		GuildScheduledEventEntityTypeExternal:
+		return true
+	default:
+		return false
+	}
+}
+
+//GuildScheduledEvent documented at https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object
+type GuildScheduledEvent struct {
+	//ID of GuildScheduledEvent
+	ID Snowflake `json:"id"`
+	//GuildID is the ID of the Guild where Event takes place
+	GuildID Snowflake `json:"guild_id"`
+	//ChannelID where event will be held
+	ChannelID Snowflake `json:"channel_id"`
+	//CreatorID is User who created ScheduledEvent
+	CreatorID Snowflake `json:"creator_id"`
+	//Name of GuildScheduledEvent (1-100 characters)
+	Name string `json:"name"`
+	//Description of the GuildScheduledEvent (1-1000 characters)
+	Description string `json:"description"`
+	//ScheduledStartTime of GuildScheduledEvent
+	ScheduledStartTime time.Time `json:"scheduled_start_time"`
+	//ScheduledEndTime of GuildScheduledEvent
+	ScheduledEndTime time.Time `json:"scheduled_end_time"`
+	//PrivacyLevel of GuildScheduledEvent
+	PrivacyLevel GuildScheduledEventPrivacyLevel `json:"privacy_level"`
+	//Status of GuildScheduledEvent
+	Status GuildScheduledEventStatus `json:"status"`
+	//EntityType of GuildScheduledEvent
+	EntityType GuildScheduledEventEntityType `json:"entity_type"`
+	//EntityID of GuildScheduledEvent
+	EntityID Snowflake `json:"entity_id"`
+	//EntityMetadata is additional metadata for the GuildScheduledEvent
+	EntityMetadata GuildScheduledEventEntityMetadata `json:"entity_metadata"`
+	//Creator of GuildScheduledEvent
+	Creator User `json:"creator"`
+	//UserCount of subscribed User(s) to GuildScheduledEvent
+	UserCount int `json:"user_count"`
+}
