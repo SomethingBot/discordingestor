@@ -208,8 +208,8 @@ const (
 //maybe look into seeing if ETF is any better
 type GEvent struct {
 	//Opcode for payload;
-	Opcode         GatewayOpcode `json:"op"`
-	EventData      interface{}   `json:"d"`
-	SequenceNumber int           `json:"s,omitempty"`
-	EventName      string        `json:"t,omitempty"`
+	Opcode         GatewayOpcode   `json:"op"`
+	EventData      json.RawMessage `json:"d"`
+	SequenceNumber int             `json:"s,omitempty"`
+	EventName      string          `json:"t,omitempty"`
 }
