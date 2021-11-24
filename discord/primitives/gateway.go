@@ -204,9 +204,9 @@ const (
 	GatewayErrorEventCodeDisallowedIntents    GatewayErrorEventCode = 4014
 )
 
-//gEvent is an Opcode event from the Gateway, I really wish discord didn't send data like this, makes it essentially impossible to parse without multiple passes
+//GEvent is an Opcode event from the Gateway, I really wish discord didn't send data like this, makes it essentially impossible to parse without multiple passes
 //maybe look into seeing if ETF is any better
-type gEvent struct {
+type GEvent struct {
 	//Opcode for payload;
 	Opcode         GatewayOpcode `json:"op"`
 	EventData      interface{}   `json:"d"`
