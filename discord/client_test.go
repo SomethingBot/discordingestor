@@ -19,6 +19,9 @@ func TestClient_OpenClose(t *testing.T) {
 			t.Fatalf("error on reading apikeyfile (%v)\n", err)
 		}
 		apikey = string(apikeyBytes)
+		if apikey[len(apikey)-1] == '\n' {
+			apikey = apikey[:len(apikey)-2]
+		}
 	}
 
 	client := New(string(apikey), primitives.GatewayIntentGuildMessages)
