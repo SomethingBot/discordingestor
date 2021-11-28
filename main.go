@@ -61,7 +61,7 @@ func main() {
 	ingest := ingestor.New(
 		logger,
 		func(apikey string, intents primitives.GatewayIntent) ingestor.DiscordClient {
-			return discord.New(apikey, intents)
+			return discord.New(apikey, intents, logger)
 		},
 		ingestor.DiscordConfig{DiscordAPIKey: discordAPIKey},
 		ingestor.RedisConfig{RedisEndPoints: redisEndpoints},
