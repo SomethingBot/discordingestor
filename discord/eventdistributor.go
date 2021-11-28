@@ -116,6 +116,10 @@ func (e *EventDistributor) RegisterHandler(eventType primitives.GatewayEventType
 	return deregEntry.deregisterHandler
 }
 
+func (e *EventDistributor) WaitTilDone() {
+	e.runningHandlers.Wait()
+}
+
 type singleFireHandler struct {
 	sync.Mutex
 	fired              bool
