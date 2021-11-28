@@ -13,7 +13,7 @@ type testHandlerUser struct {
 	firedChan chan bool
 }
 
-func (th *testHandlerUser) Handle(helloEvent primitives.GatewayEventHello) {
+func (th *testHandlerUser) Handle(event primitives.GatewayEvent) {
 	th.Lock()
 	th.count++
 	th.Unlock()
@@ -21,22 +21,15 @@ func (th *testHandlerUser) Handle(helloEvent primitives.GatewayEventHello) {
 }
 
 func TestGatewayEventHandler_FireEvent(t *testing.T) {
-	var err error
-	eventHandler := newEventHandler()
+	eventDistributor := NewEventDistributor()
 
 	thu := &testHandlerUser{firedChan: make(chan bool)}
-	err = eventHandler.RegisterEventHandlerFunction(thu.Handle)
-	if err != nil {
-		t.Fatalf("wanted no error, got error (%v)\n", err)
-	}
+	eventDistributor.RegisterHandler(primitives.GatewayEventTypeHello, thu.Handle)
 
 	handlerUserCount := 100
 
 	for i := 0; i < handlerUserCount; i++ {
-		err = eventHandler.FireEvent(primitives.GatewayEventHello{})
-		if err != nil {
-			t.Fatalf("wanted no error, got err (%v)\n", err)
-		}
+		eventDistributor.FireEvent(primitives.GatewayEventHello{})
 	}
 
 	timer := time.NewTimer(time.Second)
@@ -58,26 +51,17 @@ func TestGatewayEventHandler_FireEvent(t *testing.T) {
 
 	firedChan := make(chan bool)
 	firedChan2 := make(chan bool)
-	err = eventHandler.RegisterEventHandlerFunction(func(hello primitives.GatewayEventHello) {
+	eventDistributor.RegisterHandler(primitives.GatewayEventTypeHello, func(hello primitives.GatewayEvent) {
 		firedChan <- true
 	})
-	if err != nil {
-		t.Fatalf("wanted no error, got error (%v)\n", err)
-	}
-	err = eventHandler.RegisterEventHandlerFunction(func(hello primitives.GatewayEventHello) {
+	eventDistributor.RegisterHandler(primitives.GatewayEventTypeHello, func(hello primitives.GatewayEvent) {
 		firedChan2 <- true
 	})
-	if err != nil {
-		t.Fatalf("wanted no error, got error (%v)\n", err)
-	}
 
 	count := 10
 
 	for i := 0; i < count; i++ {
-		err = eventHandler.FireEvent(primitives.GatewayEventHello{})
-		if err != nil {
-			t.Fatalf("wanted no error, got err (%v)\n", err)
-		}
+		go eventDistributor.FireEvent(primitives.GatewayEventHello{})
 	}
 
 	timer = time.NewTimer(time.Second)
