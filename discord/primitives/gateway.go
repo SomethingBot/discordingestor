@@ -213,3 +213,14 @@ type GEvent struct {
 	SequenceNumber int             `json:"s,omitempty"`
 	EventName      string          `json:"t,omitempty"`
 }
+
+//GatewayEventHeartbeatACK documented at https://discord.com/developers/docs/topics/gateway#heartbeating-example-gateway-heartbeat-ack
+type GatewayEventHeartbeatACK struct{}
+
+func (GatewayEventHeartbeatACK) Type() GatewayEventType {
+	return GatewayEventTypeHeartbeatACK
+}
+
+func (GatewayEventHeartbeatACK) Opcode() GatewayOpcode {
+	return GatewayOpcodeHeartbeatACK
+}

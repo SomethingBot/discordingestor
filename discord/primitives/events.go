@@ -8,6 +8,8 @@ type GatewayEventType int
 const (
 	//GatewayEventTypeHello defines heartbeat interval; documented at https://discord.com/developers/docs/topics/gateway#hello
 	GatewayEventTypeHello GatewayEventType = iota
+	//GatewayEventTypeHeartbeatACK is an acknowledgement of a successful heartbeat
+	GatewayEventTypeHeartbeatACK
 	//GatewayEventTypeReady contains initial state information; documented at https://discord.com/developers/docs/topics/gateway#ready
 	GatewayEventTypeReady
 	//GatewayEventTypeResumed is the response to a Resume Gateway command
@@ -123,6 +125,88 @@ const (
 	//GatewayEventTypeWebhooksUpdate is when a Guild's Channel's Webhook was created, updated, or deleted
 	GatewayEventTypeWebhooksUpdate
 )
+
+//GetGatewayEventForType returns an interface which is a pointer to an empty struct of the corresponding GatewayEventType
+func GetGatewayEventForType(eventType GatewayEventType) GatewayEvent {
+	switch eventType {
+	case GatewayEventTypeHello:
+		return &GatewayEventHello{}
+	case GatewayEventTypeHeartbeatACK:
+		return &GatewayEventHeartbeatACK{}
+	case GatewayEventTypeReady:
+		return &GatewayEventReady{}
+	case GatewayEventTypeResumed:
+		return &GatewayEventResumed{}
+	case GatewayEventTypeReconnect:
+		return &GatewayEventReconnect{}
+	case GatewayEventTypeInvalidSession:
+		return &GatewayEventInvalidSession{}
+	case GatewayEventTypeChannelCreate:
+		return &GatewayEventChannelCreate{}
+	case GatewayEventTypeChannelUpdate:
+		return &GatewayEventChannelUpdate{}
+	case GatewayEventTypeChannelDelete:
+		return &GatewayEventChannelDelete{}
+	case GatewayEventTypeChannelPinsUpdate:
+		return &GatewayEventChannelPinsUpdate{}
+	case GatewayEventTypeThreadCreate:
+		return &GatewayEventThreadCreate{}
+	case GatewayEventTypeThreadUpdate:
+		return &GatewayEventThreadUpdate{}
+	case GatewayEventTypeThreadDelete:
+		return &GatewayEventThreadDelete{}
+	case GatewayEventTypeThreadListSync:
+		return &GatewayEventThreadListSync{}
+	case GatewayEventTypeThreadMemberUpdate:
+		return &GatewayEventThreadMemberUpdate{}
+	case GatewayEventTypeThreadMembersUpdate:
+		return &GatewayEventThreadMembersUpdate{}
+	case GatewayEventTypeGuildCreate:
+		return &GatewayEventGuildCreate{}
+	case GatewayEventTypeGuildUpdate:
+		return &GatewayEventGuildUpdate{}
+	case GatewayEventTypeGuildDelete:
+		return &GatewayEventGuildDelete{}
+	case GatewayEventTypeGuildBanAdd:
+		return &GatewayEventGuildBanAdd{}
+	case GatewayEventTypeGuildBanRemove:
+		return &GatewayEventGuildBanRemove{}
+	case GatewayEventTypeGuildEmojisUpdate:
+		return &GatewayEventGuildEmojisUpdate{}
+	case GatewayEventTypeGuildStickersUpdate:
+		return &GatewayEventGuildStickersUpdate{}
+	case GatewayEventTypeGuildIntegrationsUpdate:
+		return &GatewayEventGuildIntegrationsUpdate{}
+	case GatewayEventTypeGuildMemberAdd:
+		return &GatewayEventGuildMemberAdd{}
+	case GatewayEventTypeGuildMemberRemove:
+		return &GatewayEventGuildMemberRemove{}
+	case GatewayEventTypeGuildMemberUpdate:
+		return &GatewayEventGuildMemberUpdate{}
+	case GatewayEventTypeGuildMembersChunk:
+		return &GatewayEventGuildMembersChunk{}
+	case GatewayEventTypeGuildRoleCreate:
+		return &GatewayEventGuildRoleCreate{}
+	case GatewayEventTypeGuildRoleUpdate:
+		return &GatewayEventGuildRoleUpdate{}
+	case GatewayEventTypeGuildRoleDelete:
+		return &GatewayEventGuildRoleDelete{}
+	case GatewayEventTypeGuildScheduledEventCreate:
+		return &GatewayEventGuildScheduledEventCreate{}
+	case GatewayEventTypeGuildScheduledEventUpdate:
+		return &GatewayEventGuildScheduledEventUpdate{}
+	case GatewayEventTypeGuildScheduledEventDelete:
+		return &GatewayEventGuildScheduledEventDelete{}
+	case GatewayEventTypeGuildScheduledEventUserAdd:
+		return &GatewayEventGuildScheduledEventUserAdd{}
+	case GatewayEventTypeGuildScheduledEventUserRemove:
+		return &GatewayEventGuildScheduledEventUserRemove{}
+	case GatewayEventTypeGuildIntegrationCreate:
+		return &GatewayEventIntegrationCreate{}
+	default:
+		return nil
+	}
+}
 
 //todo: isvalid functions and tests
 
