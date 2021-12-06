@@ -126,6 +126,10 @@ const (
 	GatewayEventTypeWebhooksUpdate
 )
 
+func GetGatewayEventByName(eventType GatewayEventType) GatewayEvent {
+
+}
+
 //GetGatewayEventForType returns an interface which is a pointer to an empty struct of the corresponding GatewayEventType
 func GetGatewayEventForType(eventType GatewayEventType) GatewayEvent {
 	switch eventType {

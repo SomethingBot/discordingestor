@@ -96,7 +96,7 @@ func (c *Client) handleGatewayHandshake() error {
 			//todo: handle heartbeat in goroutine
 
 			//heartbeatAck := `{"op":11}` //todo: this is sent by discord, check if we get one after sending heartbeat, if we dont, reconnect
-			//
+			//todo: needs to detect if we get an ACK after heartbeating
 			//err = conn.WriteMessage(websocket.TextMessage, []byte(heartbeatAck)) //todo: convert to const or something maybe not
 			//if err != nil {
 			//	return fmt.Errorf("could not write heartbeat ack to websocket")
@@ -126,8 +126,8 @@ func (c *Client) handleGatewayHandshake() error {
 			}
 			return nil
 		default:
-			fmt.Println(string(event.EventData))
-			//return fmt.Errorf("got unknown event from gateway") //todo: sentinel
+			event = primitives.GetGatewayEventForType(event.EventName)
+			err = json.Unmarshal(event.EventData)
 		}
 
 		if messageType == websocket.BinaryMessage { //close zlibreader better, maybe dont check messagetype twice (defer?)
@@ -190,6 +190,10 @@ func (c *Client) Open() error {
 	if err != nil {
 		return fmt.Errorf("discord: gateway handshake error (%w)", err)
 	}
+
+	go func(interval int) {
+		c.
+	}()
 
 	go c.handleGateway()
 
