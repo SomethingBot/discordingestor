@@ -2,6 +2,7 @@ package ingestor
 
 import (
 	"fmt"
+	"github.com/SomethingBot/discordingestor/discord/primitives"
 )
 
 var (
@@ -18,5 +19,5 @@ type DiscordClient interface {
 	//Close DiscordClient
 	Close() error
 	//AddHandlerFunc that handles an Event
-	AddHandlerFunc(interface{}) error
+	AddHandlerFunc(eventType primitives.GatewayEventType, handlerFunc func(event primitives.GatewayEvent)) error
 }

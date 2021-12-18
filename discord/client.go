@@ -16,6 +16,7 @@ import (
 	"runtime"
 	"strconv"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -27,9 +28,11 @@ type discordConfig struct {
 }
 
 type discordWebsocket struct {
-	conn       *websocket.Conn
-	stopChan   chan struct{}
-	closeGroup sync.WaitGroup
+	conn                *websocket.Conn
+	stopChan            chan struct{}
+	closeGroup          sync.WaitGroup
+	heartbeatStopChan   chan struct{}
+	heartbeatCloseGroup sync.WaitGroup
 }
 
 type Client struct {
@@ -145,6 +148,72 @@ func (c *Client) handleGateway() {
 
 }
 
+func (c *Client) sendGatewayMessage(event primitives.GatewayEvent) error {
+	return nil
+}
+
+func (c *Client) startHeartbeatWorker() {
+	heartbeatRequestChan := make(chan struct{})
+	c.eventDistributor.RegisterHandler(primitives.GatewayEventTypeHeartbeatRequest, func(event primitives.GatewayEvent) {
+		heartbeatRequestChan <- struct{}{}
+	})
+	heartbeatACKChan := make(chan primitives.GatewayEventHeartbeatACK)
+	c.eventDistributor.RegisterHandler(primitives.GatewayEventTypeHeartbeatACK, func(event primitives.GatewayEvent) {
+		heartbeatACKChan <- event.(primitives.GatewayEventHeartbeatACK) //if this panics, it's an event handler implementation issue, not us
+	})
+	heartbeatIntervalChan := make(chan int)
+	c.eventDistributor.RegisterHandlerOnce(primitives.GatewayEventTypeHello, func(event primitives.GatewayEvent) {
+		heartbeatIntervalChan <- event.(primitives.GatewayEventHello).Interval
+	})
+	c.discordWebsocket.heartbeatStopChan = make(chan struct{})
+	c.discordWebsocket.heartbeatCloseGroup.Add(1)
+	go func() {
+		interval := <-heartbeatIntervalChan
+		close(heartbeatIntervalChan)
+
+		intervalDuration := time.Duration(interval) * time.Millisecond
+		timer := time.NewTimer(intervalDuration)
+		hasACKed := false
+		for {
+			select {
+			case <-timer.C:
+				if !hasACKed {
+					//https://discord.com/developers/docs/topics/gateway#heartbeating-example-gateway-heartbeat-ack
+					//if discord hasn't ACKed since last heartbeat we need to reset the gateway
+					//todo: maybe internally reconnect instead of shutting down
+					//todo: this needs to be an event AKA GatewayEventClientShutdown, as this doesnt work on windows
+					err := syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+					if err != nil {
+						c.logger.Fatalf("failed to call syscall.Kill(syscall.Getpid(), syscall.SIGINT)\n")
+					}
+					return
+				}
+				c.sendGatewayMessage(gatewayeventhear)
+				timer.Reset(intervalDuration)
+			case <-heartbeatACKChan:
+				hasACKed = true
+			case heartbeatRequest := <-heartbeatRequestChan:
+				if !timer.Stop() {
+					<-timer.C
+				}
+				hasACKed = false
+			case <-c.discordWebsocket.stopChan:
+				if !timer.Stop() {
+					<-timer.C
+				}
+				c.discordWebsocket.heartbeatCloseGroup.Done()
+			}
+		}
+	}()
+}
+
+func (c *Client) stopHeartbeatWorker() {
+	close(c.discordWebsocket.heartbeatStopChan)
+	c.discordWebsocket.heartbeatCloseGroup.Wait()
+}
+
+//Open the discordclient library, this is non-blocking, so to find out when the server closes we send an interrupt to the current process
+//todo: probably should have an event to do this instead and have callers listen for the event
 func (c *Client) Open() error {
 	c.runningLock.Lock()
 	defer c.runningLock.Unlock()
@@ -191,9 +260,7 @@ func (c *Client) Open() error {
 		return fmt.Errorf("discord: gateway handshake error (%w)", err)
 	}
 
-	go func(interval int) {
-		c.
-	}()
+	c.startHeartbeatWorker()
 
 	go c.handleGateway()
 
@@ -202,6 +269,11 @@ func (c *Client) Open() error {
 }
 
 func (c *Client) closeWebSocket() error {
+	c.stopHeartbeatWorker()
+
+	//close actual websocket
+	close(c.discordWebsocket.stopChan)
+	c.discordWebsocket.closeGroup.Wait()
 	err := c.discordWebsocket.conn.Close()
 	if err != nil {
 		return err
@@ -226,6 +298,7 @@ func (c *Client) Close() error {
 	return nil
 }
 
-func (c *Client) AddHandlerFunc(i interface{}) error {
-	panic("implement me")
+func (c *Client) AddHandlerFunc(eventType primitives.GatewayEventType, handlerFunc func(event primitives.GatewayEvent)) error {
+	c.eventDistributor.RegisterHandler(eventType, handlerFunc)
+	return nil
 }

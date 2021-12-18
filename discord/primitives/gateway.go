@@ -158,8 +158,10 @@ func GetGatewayURI() (url.URL, error) {
 type GatewayOpcode int
 
 const (
+	//GatewayOpcodeNil is an intentionally invalid Opcode
+	GatewayOpcodeNil GatewayOpcode = -1
 	//GatewayOpcodeDispatch is received by a Client for a dispatched GatewayEvent
-	GatewayOpcodeDispatch GatewayOpcode = iota
+	GatewayOpcodeDispatch GatewayOpcode = iota - 1
 	//GatewayOpcodeHeartbeat is sent or received by a Client to keep a connection alive
 	GatewayOpcodeHeartbeat
 	//GatewayOpcodeIdentify is sent by a Client to start a new Session during an initial handshake
@@ -169,7 +171,7 @@ const (
 	//GatewayOpcodeVoiceStateUpdate is sent by a Client to move between ChannelTypeGuildVoice
 	GatewayOpcodeVoiceStateUpdate
 	//GatewayOpcodeResume is sent by a Client to resume a previous Session
-	GatewayOpcodeResume GatewayOpcode = iota + 1
+	GatewayOpcodeResume GatewayOpcode = iota
 	//GatewayOpcodeReconnect is received by a Client to inform them to disconnect and GatewayOpcodeResume
 	GatewayOpcodeReconnect
 	//GatewayOpcodeRequestGuildMembers is sent by a Client to request information about offline GuildMember(s) in a Guild.IsLarge

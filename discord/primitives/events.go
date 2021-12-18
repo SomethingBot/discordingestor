@@ -8,6 +8,10 @@ type GatewayEventType int
 const (
 	//GatewayEventTypeHello defines heartbeat interval; documented at https://discord.com/developers/docs/topics/gateway#hello
 	GatewayEventTypeHello GatewayEventType = iota
+	//GatewayEventTypeHeartbeatRequest is a request for an immediate heartbeat to be sent to the gateway
+	GatewayEventTypeHeartbeatRequest
+	//GatewayEventTypeClientShutdown is a shutdown by the DiscordClient Library
+	GatewayEventTypeClientShutdown
 	//GatewayEventTypeHeartbeatACK is an acknowledgement of a successful heartbeat
 	GatewayEventTypeHeartbeatACK
 	//GatewayEventTypeReady contains initial state information; documented at https://discord.com/developers/docs/topics/gateway#ready
@@ -126,8 +130,12 @@ const (
 	GatewayEventTypeWebhooksUpdate
 )
 
-func GetGatewayEventByName(eventType GatewayEventType) GatewayEvent {
-
+//GetGatewayEventByName returns a default GatewayEvent for a given EventName ex: CHANNEL_CREATE returns GatewayEventTypeChannelCreate
+func GetGatewayEventByName(eventName string) GatewayEvent { //todo: fill in
+	switch eventName {
+	default:
+		return nil
+	}
 }
 
 //GetGatewayEventForType returns an interface which is a pointer to an empty struct of the corresponding GatewayEventType
@@ -813,4 +821,23 @@ func (GatewayEventIntegrationCreate) Type() GatewayEventType {
 
 func (GatewayEventIntegrationCreate) Opcode() GatewayOpcode {
 	return GatewayOpcodeDispatch
+}
+
+//GatewayEventClientShutdown is the event thrown when the Client Library is shutdown
+type GatewayEventClientShutdown struct {
+	//err that caused shutdown
+	err error
+}
+
+func (GatewayEventClientShutdown) Type() GatewayEventType {
+	return GatewayEventTypeClientShutdown
+}
+
+func (GatewayEventClientShutdown) Opcode() GatewayOpcode {
+	return GatewayOpcodeNil
+}
+
+//Error that caused the shutdown, nil if no error and standard shutdown
+func (g GatewayEventClientShutdown) Error() error {
+	return g.err
 }

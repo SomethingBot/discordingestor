@@ -60,7 +60,7 @@ func (ingestor *Ingestor) Open() (err error) {
 		return err
 	}
 
-	err = ingestor.DiscordClient.AddHandlerFunc(ingestor.handleMessages)
+	err = ingestor.DiscordClient.AddHandlerFunc(primitives.GatewayEventTypeGuildCreate, ingestor.handleMessages)
 	if err != nil {
 		return err
 	}
