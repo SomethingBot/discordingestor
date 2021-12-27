@@ -215,6 +215,11 @@ func TestPermissionFlag_IsValid(t *testing.T) {
 			want:           true,
 		},
 		{
+			name:           "PermissionModerateMembers",
+			permissionFlag: PermissionModerateMembers,
+			want:           true,
+		},
+		{
 			name:           "PermissionFlagALL",
 			permissionFlag: PermissionFlagALL,
 			want:           true,
@@ -483,6 +488,11 @@ func TestPermissionFlag_Contains(t *testing.T) {
 			name:           "PermissionFlagStartEmbeddedActivities",
 			permissionFlag: PermissionFlagALL,
 			flags:          PermissionFlagStartEmbeddedActivities,
+			want:           true,
+		},
+		{
+			name:           "PermissionModerateMembers",
+			permissionFlag: PermissionModerateMembers,
 			want:           true,
 		},
 		{

@@ -3,7 +3,19 @@ package primitives
 import "time"
 
 //GuildMember from https://discord.com/developers/docs/resources/guild#guild-member-object
+//todo: finish commenting
 type GuildMember struct {
+	User                        User           `json:"user"`
+	Nickname                    string         `json:"nick"`
+	Avatar                      ImageHash      `json:"avatar"`
+	Roles                       []Role         `json:"roles"`
+	JoinedAt                    time.Time      `json:"joined_at"`
+	PremiumSince                time.Time      `json:"premium_since"`
+	IsDeafened                  bool           `json:"deaf"`
+	IsMuted                     bool           `json:"mute"`
+	IsPending                   bool           `json:"pending"`
+	Permissions                 PermissionFlag `json:"permissions,string"`
+	CommunicationsDisabledUntil time.Time      `json:"communications_disabled_until"`
 }
 
 //WelcomeScreen from https://discord.com/developers/docs/resources/guild#welcome-screen-object

@@ -87,6 +87,8 @@ const (
 	PermissionFlagSendMessageInThreads
 	//PermissionFlagStartEmbeddedActivities allows a User to launch Activities (applications with the Embedded flag) in a ChannelTypeGuildVoice
 	PermissionFlagStartEmbeddedActivities
+	//PermissionModerateMembers allows a User to timeout users
+	PermissionModerateMembers
 	//PermissionFlagALL is a ANDed of all valid PermissionFlag
 	PermissionFlagALL PermissionFlag = (1 << (iota - 1)) - 1
 )

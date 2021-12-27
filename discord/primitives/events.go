@@ -648,6 +648,8 @@ type GatewayEventGuildMemberUpdate struct {
 	IsMuted bool `json:"is_muted"`
 	//IsPending membership screening
 	IsPending bool `json:"is_pending"`
+	//CommunicationDisabledUntil time.Time that the GuildMember will be able to communication is enabled again
+	CommunicationDisabledUntil time.Time `json:"communication_disabled_until"`
 }
 
 func (GatewayEventGuildMemberUpdate) Type() GatewayEventType {
