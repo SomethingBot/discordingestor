@@ -77,7 +77,7 @@ const (
 	PermissionFlagSkippedNotReal
 	//PermissionFlagManageThreads allows a User to manage Thread(s)
 	PermissionFlagManageThreads
-	//PermissionFlagCreatePublicThreads allows a User create a Thread
+	//PermissionFlagCreatePublicThreads allows a User create public and announcement threads
 	PermissionFlagCreatePublicThreads
 	//PermissionFlagCreatePrivateThreads allows a User to create a private Thread
 	PermissionFlagCreatePrivateThreads
