@@ -19,4 +19,4 @@ lint:
 	go fmt ./...
 
 run: build
-	DISCORDAPIKEYFILE=apikeyfile REDISENDPOINTS=127.0.0.1:6379 ./discordingestor
+	DISCORD_APIKEYFILE=apikeyfile REDIS_ENDPOINTS=127.0.0.1:6379 ./discordingestor

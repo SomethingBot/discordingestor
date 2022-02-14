@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"syscall"
 )
@@ -26,7 +27,7 @@ func main() {
 	logger.Printf("Starting discordingestor, commit:%v, tag:%v, Mode:%v", GitCommit, GitTag, Mode)
 
 	var discordAPIKey string
-	if discordAPIKeyFile := os.Getenv("DISCORDAPIKEYFILE"); discordAPIKeyFile != "" {
+	if discordAPIKeyFile := filepath.Clean(os.Getenv("DISCORD_APIKEYFILE")); discordAPIKeyFile != "" {
 		file, err := os.Open(discordAPIKeyFile)
 		if err != nil {
 			logger.Printf("Could not open file (%v), error (%v)", discordAPIKeyFile, err)
@@ -56,7 +57,7 @@ func main() {
 		discordAPIKey = string(body)
 	}
 
-	redisEndpoints := strings.Split(os.Getenv("REDISENDPOINTS"), ",")
+	redisEndpoints := strings.Split(os.Getenv("REDIS_ENDPOINTS"), ",")
 
 	ingest := ingestor.New(
 		logger,
