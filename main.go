@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/SomethingBot/discordingestor/discord"
 	"github.com/SomethingBot/discordingestor/discord/primitives"
 	"github.com/SomethingBot/discordingestor/ingestor"
@@ -22,42 +23,47 @@ var (
 	Mode string
 )
 
-func main() {
-	logger := log.New(os.Stdout, "", log.LUTC|log.Ldate|log.Ltime)
-	logger.Printf("Starting discordingestor, commit:%v, tag:%v, Mode:%v", GitCommit, GitTag, Mode)
-
+func getDiscordAPIKey() (string, error) {
 	var discordAPIKey string
 	if discordAPIKeyFile := filepath.Clean(os.Getenv("DISCORD_APIKEYFILE")); discordAPIKeyFile != "" {
 		file, err := os.Open(discordAPIKeyFile)
 		if err != nil {
-			logger.Printf("Could not open file (%v), error (%v)", discordAPIKeyFile, err)
-			os.Exit(1)
+			return "", fmt.Errorf("could not open file (%v), error (%v)", discordAPIKeyFile, err)
 		}
 
 		fileStat, err := file.Stat()
 		if err != nil {
-			logger.Printf("Could not get file (%v) stats (%v)", file.Name(), err)
+			return "", fmt.Errorf("could not get file (%v) stats (%v)", file.Name(), err)
 		}
 
 		if fileStat.Size() == 0 {
-			logger.Printf("DiscordApiKeyFile (%v) size is 0", file.Name())
-			os.Exit(1)
+			return "", fmt.Errorf("file (%v) size is 0", file.Name())
 		}
 
 		if fileStat.Size() > 1<<20 {
-			logger.Printf("Notice: file (%v) size is larger than 1MB", file.Name())
+			return "", fmt.Errorf("file (%v) size is larger than 1MB", file.Name())
 		}
 
 		body, err := io.ReadAll(file)
 		if err != nil {
-			logger.Printf("Opened, but could not read file (%v), error (%v)", discordAPIKeyFile, err)
-			os.Exit(1)
+			return "", fmt.Errorf("opened but could not read file (%v), error (%v)", discordAPIKeyFile, err)
 		}
 
 		discordAPIKey = string(body)
 	}
+	return discordAPIKey, nil
+}
+
+func main() {
+	logger := log.New(os.Stdout, "", log.LUTC|log.Ldate|log.Ltime)
+	logger.Printf("Starting discordingestor, commit:%v, tag:%v, Mode:%v", GitCommit, GitTag, Mode)
 
 	redisEndpoints := strings.Split(os.Getenv("REDIS_ENDPOINTS"), ",")
+
+	discordAPIKey, err := getDiscordAPIKey()
+	if err != nil {
+		logger.Fatalf("error while grabbing Discord API Key (%v)\n", err)
+	}
 
 	ingest := ingestor.New(
 		logger,
@@ -68,7 +74,7 @@ func main() {
 		ingestor.RedisConfig{RedisEndPoints: redisEndpoints},
 	)
 
-	err := ingest.Open()
+	err = ingest.Open()
 	if err != nil {
 		logger.Printf("Could not open ingestor (%v)", err)
 		return
@@ -78,6 +84,10 @@ func main() {
 	signal.Notify(osSignal, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 
 	if signalFromSystem := <-osSignal; signalFromSystem != nil {
+		err = ingest.Close()
+		if err != nil {
+			fmt.Println(err)
+		}
 		logger.Printf("Stopping discordingestor, commit:%v, tag:%v, Mode:%v, reason: (%v)", GitCommit, GitTag, Mode, signalFromSystem.String())
 		return
 	}
