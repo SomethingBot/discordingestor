@@ -178,7 +178,7 @@ const (
 	GatewayOpcodeRequestGuildMembers
 	//GatewayOpcodeRequestInvalidSession is received by a Client that a Session has been invalidated, Client should reconnect and GatewayOpcodeIdentify or GatewayOpcodeResume
 	GatewayOpcodeRequestInvalidSession
-	//GatewayOpcodeHello is received by a Client after connecting, containing the heartbeat_interval to use
+	//GatewayOpcodeHello is received by a Client after connecting, containing the heartbeat_interval to use; also used by Client when sending a heartbeat
 	GatewayOpcodeHello
 	//GatewayOpcodeHeartbeatACK is received by a Client acknowledging a successful GatewayOpcodeHeartbeat
 	GatewayOpcodeHeartbeatACK
@@ -211,9 +211,9 @@ const (
 type GEvent struct {
 	//Opcode for payload;
 	Opcode         GatewayOpcode   `json:"op"`
-	EventData      json.RawMessage `json:"d"`
+	Data           json.RawMessage `json:"d,omitempty"`
 	SequenceNumber int             `json:"s,omitempty"`
-	EventName      string          `json:"t,omitempty"`
+	Name           string          `json:"t,omitempty"`
 }
 
 //GatewayEventHeartbeatACK documented at https://discord.com/developers/docs/topics/gateway#heartbeating-example-gateway-heartbeat-ack
