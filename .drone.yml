@@ -10,25 +10,25 @@ trigger:
 
 steps:
   - name: fmt and tidy
-    image: golang:1.18
+    image: somethingbot/golang:1.18
     commands:
       - test -z $(go fmt ./...)
       - go mod tidy
       - git diff --exit-code -- go.mod go.sum
       - git diff --exit-code -- go.mod go.sum > test -z
   - name: generate-check
-    image: golang:1.18
+    image: somethingbot/golang:1.18
     commands:
       - go generate
       - git diff --exit-code -- go.mod go.sum
       - git diff --exit-code -- go.mod go.sum > test -z
   - name: build and vet
-    image: golang:1.18
+    image: somethingbot/golang:1.18
     commands:
       - go build .
       - go vet -race -v ./...
   - name: test
-    image: golang:1.18
+    image: somethingbot/golang:1.18
     commands:
       - go test -v ./... -short
 ---
@@ -46,7 +46,7 @@ depends_on:
 
 steps:
   - name: test-integration
-    image: golang:1.18
+    image: somethingbot/golang:1.18
     commands:
       - go test -v ./...
     environment:
