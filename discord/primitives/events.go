@@ -1,223 +1,135 @@
 package primitives
 
-import (
-	"fmt"
-	"time"
-)
+import "time"
 
+//go:generate enumer -type GatewayEventType -transform upper events.go
 //GatewayEventType documented at https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events
-type GatewayEventType string
+type GatewayEventType int
 
 const (
 	//GatewayEventTypeHello defines heartbeat interval; documented at https://discord.com/developers/docs/topics/gateway#hello
-	GatewayEventTypeHello GatewayEventType = "HELLO"
+	GatewayEventTypeHello GatewayEventType = iota
 	//GatewayEventTypeHeartbeatRequest is a request for an immediate heartbeat to be sent to the gateway
-	GatewayEventTypeHeartbeatRequest GatewayEventType = "INGESTOR_INTERNAL_HEARTBEAT_REQUEST"
+	GatewayEventTypeHeartbeatRequest
 	//GatewayEventTypeClientShutdown is a shutdown by the DiscordClient Library
-	GatewayEventTypeClientShutdown GatewayEventType = "INGESTOR_INTERNAL_CLIENT_SHUTDOWN"
+	GatewayEventTypeClientShutdown
 	//GatewayEventTypeHeartbeatACK is an acknowledgement of a successful heartbeat
-	GatewayEventTypeHeartbeatACK GatewayEventType = "INGESTOR_INTERNAL_HEARTBEAT_ACK"
+	GatewayEventTypeHeartbeatACK
 	//GatewayEventTypeReady contains initial state information; documented at https://discord.com/developers/docs/topics/gateway#ready
-	GatewayEventTypeReady GatewayEventType = "READY"
+	GatewayEventTypeReady
 	//GatewayEventTypeResumed is the response to a Resume Gateway command
-	GatewayEventTypeResumed GatewayEventType = "RESUMED"
+	GatewayEventTypeResumed
 	//GatewayEventTypeReconnect is Gateway instructed Client to reconnect and send a Resume
-	GatewayEventTypeReconnect GatewayEventType = "RECONNECT"
+	GatewayEventTypeReconnect
 	//GatewayEventTypeInvalidSession is a failure response to a Gateway Identity or a Resume
-	GatewayEventTypeInvalidSession GatewayEventType = "INVALID_SESSION"
+	GatewayEventTypeInvalidSession
 	//GatewayEventTypeChannelCreate is a creation of a Channel
-	GatewayEventTypeChannelCreate GatewayEventType = "CHANNEL_CREATE"
+	GatewayEventTypeChannelCreate
 	//GatewayEventTypeChannelUpdate is an update of a Channel
-	GatewayEventTypeChannelUpdate GatewayEventType = "CHANNEL_UPDATE"
+	GatewayEventTypeChannelUpdate
 	//GatewayEventTypeChannelDelete is a deletion of a Channel
-	GatewayEventTypeChannelDelete GatewayEventType = "CHANNEL_DELETE"
+	GatewayEventTypeChannelDelete
 	//GatewayEventTypeChannelPinsUpdate is the update of a Channel's pins
-	GatewayEventTypeChannelPinsUpdate GatewayEventType = "CHANNEL_PINS_UPDATE"
+	GatewayEventTypeChannelPinsUpdate
 	//GatewayEventTypeThreadCreate is the creation of Thread
-	GatewayEventTypeThreadCreate GatewayEventType = "THREAD_CREATE"
+	GatewayEventTypeThreadCreate
 	//GatewayEventTypeThreadUpdate is the update of a Thread
-	GatewayEventTypeThreadUpdate GatewayEventType = "THREAD_UPDATE"
+	GatewayEventTypeThreadUpdate
 	//GatewayEventTypeThreadDelete is the deletion of a Thread
-	GatewayEventTypeThreadDelete GatewayEventType = "THREAD_DELETE"
+	GatewayEventTypeThreadDelete
 	//GatewayEventTypeThreadListSync is sent when gaining access to a Channel, contains all active Thread(s) in that Channel
-	GatewayEventTypeThreadListSync GatewayEventType = "THREAD_LIST_SYNC"
+	GatewayEventTypeThreadListSync
 	//GatewayEventTypeThreadMemberUpdate ThreadMember for bot was updated
-	GatewayEventTypeThreadMemberUpdate GatewayEventType = "THREAD_MEMBER_UPDATE"
+	GatewayEventTypeThreadMemberUpdate
 	//GatewayEventTypeThreadMembersUpdate multiple ThreadMember(s) were added or removed from a thread
-	GatewayEventTypeThreadMembersUpdate GatewayEventType = "THREAD_MEMBERS_UPDATE"
+	GatewayEventTypeThreadMembersUpdate
 	//GatewayEventTypeGuildCreate lazy-load for unavailable Guild, Guild became available, or User joined a new Guild
-	GatewayEventTypeGuildCreate GatewayEventType = "GUILD_CREATE"
+	GatewayEventTypeGuildCreate
 	//GatewayEventTypeGuildUpdate is the update of a Guild
-	GatewayEventTypeGuildUpdate GatewayEventType = "GUILD_UPDATE"
+	GatewayEventTypeGuildUpdate
 	//GatewayEventTypeGuildDelete is when a Guild became unavailable, or Bot left/was removed from Guild
-	GatewayEventTypeGuildDelete GatewayEventType = "GUILD_DELETE"
+	GatewayEventTypeGuildDelete
 	//GatewayEventTypeGuildBanAdd is when a User is banned from a Guild
-	GatewayEventTypeGuildBanAdd GatewayEventType = "GUILD_BAN_ADD"
+	GatewayEventTypeGuildBanAdd
 	//GatewayEventTypeGuildBanRemove is when a User was unbanned from a Guild
-	GatewayEventTypeGuildBanRemove GatewayEventType = "GUILD_BAN_REMOVE"
+	GatewayEventTypeGuildBanRemove
 	//GatewayEventTypeGuildEmojisUpdate is a change in Emoji(s) in a Guild
-	GatewayEventTypeGuildEmojisUpdate GatewayEventType = "GUILD_EMOJIS_UPDATE"
+	GatewayEventTypeGuildEmojisUpdate
 	//GatewayEventTypeGuildStickersUpdate is a change in Sticker(s) in a Guild
-	GatewayEventTypeGuildStickersUpdate GatewayEventType = "GUILD_STICKERS_UPDATE"
+	GatewayEventTypeGuildStickersUpdate
 	//GatewayEventTypeGuildIntegrationsUpdate is a change in an Integration(s) in a guild
-	GatewayEventTypeGuildIntegrationsUpdate GatewayEventType = "GUILD_INTEGRATIONS_UPDATE"
+	GatewayEventTypeGuildIntegrationsUpdate
 	//GatewayEventTypeGuildMemberAdd is when a new User joins a Guild
-	GatewayEventTypeGuildMemberAdd GatewayEventType = "GUILD_MEMBER_ADD"
+	GatewayEventTypeGuildMemberAdd
 	//GatewayEventTypeGuildMemberRemove is when a User leaves or is removed from a Guild
-	GatewayEventTypeGuildMemberRemove GatewayEventType = "GUILD_MEMBER_REMOVE"
+	GatewayEventTypeGuildMemberRemove
 	//GatewayEventTypeGuildMemberUpdate is when a GuildMember was updated
-	GatewayEventTypeGuildMemberUpdate GatewayEventType = "GUILD_MEMBER_UPDATE"
+	GatewayEventTypeGuildMemberUpdate
 	//GatewayEventTypeGuildMembersChunk is a response to a RequestGuildMembers (https://discord.com/developers/docs/topics/gateway#request-guild-members)
-	GatewayEventTypeGuildMembersChunk GatewayEventType = "GUILD_MEMBERS_CHUNK"
+	GatewayEventTypeGuildMembersChunk
 	//GatewayEventTypeGuildRoleCreate is when a Role is created in a Guild
-	GatewayEventTypeGuildRoleCreate GatewayEventType = "GUILD_ROLE_CREATE"
+	GatewayEventTypeGuildRoleCreate
 	//GatewayEventTypeGuildRoleUpdate is when a Role is updated in a Guild
-	GatewayEventTypeGuildRoleUpdate GatewayEventType = "GUILD_ROLE_UPDATE"
+	GatewayEventTypeGuildRoleUpdate
 	//GatewayEventTypeGuildRoleDelete is when a Role is deleted in a Guild
-	GatewayEventTypeGuildRoleDelete GatewayEventType = "GUILD_ROLE_DELETE"
+	GatewayEventTypeGuildRoleDelete
 	//GatewayEventTypeGuildScheduledEventCreate is when a GuildScheduledEvent is created
-	GatewayEventTypeGuildScheduledEventCreate GatewayEventType = "GUILD_SCHEDULED_EVENT_CREATE"
+	GatewayEventTypeGuildScheduledEventCreate
 	//GatewayEventTypeGuildScheduledEventUpdate is when a GuildScheduledEvent is updated
-	GatewayEventTypeGuildScheduledEventUpdate GatewayEventType = "GUILD_SCHEDULED_EVENT_UPDATE"
+	GatewayEventTypeGuildScheduledEventUpdate
 	//GatewayEventTypeGuildScheduledEventDelete is when a GuildScheduledEvent is deleted
-	GatewayEventTypeGuildScheduledEventDelete GatewayEventType = "GUILD_SCHEDULED_EVENT_DELETE"
+	GatewayEventTypeGuildScheduledEventDelete
 	//GatewayEventTypeGuildScheduledEventUserAdd is when a GuildScheduledEvent has a User added
-	GatewayEventTypeGuildScheduledEventUserAdd GatewayEventType = "GUILD_SCHEDULED_EVENT_USER_ADD"
+	GatewayEventTypeGuildScheduledEventUserAdd
 	//GatewayEventTypeGuildScheduledEventUserRemove is when a GuildScheduledEvent has a User removed
-	GatewayEventTypeGuildScheduledEventUserRemove GatewayEventType = "GUILD_SCHEDULED_EVENT_USER_REMOVE"
+	GatewayEventTypeGuildScheduledEventUserRemove
 	//GatewayEventTypeGuildIntegrationCreate is when a Guild Integration was created
-	GatewayEventTypeGuildIntegrationCreate GatewayEventType = "GUILD_INTEGRATION_CREATE"
+	GatewayEventTypeGuildIntegrationCreate
 	//GatewayEventTypeGuildIntegrationUpdate is when a Guild Integration was updated
-	GatewayEventTypeGuildIntegrationUpdate GatewayEventType = "GUILD_INTEGRATION_UPDATE"
+	GatewayEventTypeGuildIntegrationUpdate
 	//GatewayEventTypeGuildIntegrationDelete is when a Guild Integration was deleted
-	GatewayEventTypeGuildIntegrationDelete GatewayEventType = "GUILD_INTEGRATION_DELETE"
+	GatewayEventTypeGuildIntegrationDelete
 	//GatewayEventTypeGuildInteractionCreate is when a User uses an Interaction (like application commands, https://discord.com/developers/docs/interactions/application-commands)
-	GatewayEventTypeGuildInteractionCreate GatewayEventType = "GUILD_INTEGRATION_CREATE"
+	GatewayEventTypeGuildInteractionCreate
 	//GatewayEventTypeInviteCreate is when an Invite to a channel was created
-	GatewayEventTypeInviteCreate GatewayEventType = "INVITE_CREATE"
+	GatewayEventTypeInviteCreate
 	//GatewayEventTypeInviteDelete is when an Invite to a channel was deleted
-	GatewayEventTypeInviteDelete GatewayEventType = "INVITE_DELETE"
+	GatewayEventTypeInviteDelete
 	//GatewayEventTypeMessageCreate documented at https://discord.com/developers/docs/topics/gateway#message-create
-	GatewayEventTypeMessageCreate GatewayEventType = "MESSAGE_CREATE"
+	GatewayEventTypeMessageCreate
 	//GatewayEventTypeMessageUpdate is when a Message was edited
-	GatewayEventTypeMessageUpdate GatewayEventType = "MESSAGE_UPDATE"
+	GatewayEventTypeMessageUpdate
 	//GatewayEventTypeMessageDelete is when a Message was deleted
-	GatewayEventTypeMessageDelete GatewayEventType = "MESSAGE_DELETE"
+	GatewayEventTypeMessageDelete
 	//GatewayEventTypeMessageDeleteBulk is when multiple Messages were deleted
-	GatewayEventTypeMessageDeleteBulk GatewayEventType = "MESSAGE_DELETE_BULK"
+	GatewayEventTypeMessageDeleteBulk
 	//GatewayEventTypeMessageReactionAdd is when a User reacts to a Message
-	GatewayEventTypeMessageReactionAdd GatewayEventType = "MESSAGE_REACTION_ADD"
+	GatewayEventTypeMessageReactionAdd
 	//GatewayEventTypeMessageReactionRemove is when a User removed a reaction from a Message
-	GatewayEventTypeMessageReactionRemove GatewayEventType = "MESSAGE_REACTION_REMOVE"
+	GatewayEventTypeMessageReactionRemove
 	//GatewayEventTypeMessageReactionRemoveAll is when all reactions were removed from a Message
-	GatewayEventTypeMessageReactionRemoveAll GatewayEventType = "MESSAGE_REACTION_REMOVE_ALL"
+	GatewayEventTypeMessageReactionRemoveAll
 	//GatewayEventTypeMessageReactionRemoveEmoji is when all reactions for a specific Emoji was removed from a Message
-	GatewayEventTypeMessageReactionRemoveEmoji GatewayEventType = "MESSAGE_REACTION_REMOVE_EMOJI"
+	GatewayEventTypeMessageReactionRemoveEmoji
 	//GatewayEventTypePresenceUpdate is when a Presence for a User was updated
-	GatewayEventTypePresenceUpdate GatewayEventType = "PRESENCE_UPDATE"
+	GatewayEventTypePresenceUpdate
 	//GatewayEventTypeStageInstanceCreate is when a ChannelTypeGuildStageVoice was created in a Guild
-	GatewayEventTypeStageInstanceCreate GatewayEventType = "STAGE_INSTANCE_CREATE"
+	GatewayEventTypeStageInstanceCreate
 	//GatewayEventTypeStageInstanceDelete is when a ChannelTypeGuildStageVoice was deleted in a Guild
-	GatewayEventTypeStageInstanceDelete GatewayEventType = "STAGE_INSTANCE_DELETE"
+	GatewayEventTypeStageInstanceDelete
 	//GatewayEventTypeStageInstanceUpdate is when a ChannelTypeGuildStageVoice was updated in a Guild
-	GatewayEventTypeStageInstanceUpdate GatewayEventType = "STAGE_INSTANCE_UPDATE"
+	GatewayEventTypeStageInstanceUpdate
 	//GatewayEventTypeTypingStart is when a User has started typing in a Channel
-	GatewayEventTypeTypingStart GatewayEventType = "TYPING_START"
+	GatewayEventTypeTypingStart
 	//GatewayEventTypeUserUpdate is when a User's properties have been updated
-	GatewayEventTypeUserUpdate GatewayEventType = "USER_UPDATE"
+	GatewayEventTypeUserUpdate
 	//GatewayEventTypeVoiceStateUpdate is when a User has joined, left, or moved Voice Channel(s); VoiceState
-	GatewayEventTypeVoiceStateUpdate GatewayEventType = "VOICE_STATE_UPDATE"
+	GatewayEventTypeVoiceStateUpdate
 	//GatewayEventTypeVoiceServerUpdate is when a Guild's ChannelTypeGuildVoice has changed Endpoints
-	GatewayEventTypeVoiceServerUpdate GatewayEventType = "VOICE_SERVER_UPDATE"
+	GatewayEventTypeVoiceServerUpdate
 	//GatewayEventTypeWebhooksUpdate is when a Guild's Channel's Webhook was created, updated, or deleted
-	GatewayEventTypeWebhooksUpdate GatewayEventType = "WEBHOOKS_UPDATE"
+	GatewayEventTypeWebhooksUpdate
 )
-
-var ErrorNoGatewayEventByName = fmt.Errorf("primitives: no valid GatewayEvent for given GatewayEventName")
-
-//GetGatewayEventByName returns an interface which is a pointer to an empty struct of the corresponding GatewayEventType
-func GetGatewayEventByName(name string) (GatewayEvent, error) { //todo: finish filling
-	switch GatewayEventType(name) {
-	case GatewayEventTypeHello:
-		return &GatewayEventHello{}, nil
-	case GatewayEventTypeHeartbeatACK:
-		return &GatewayEventHeartbeatACK{}, nil
-	case GatewayEventTypeReady:
-		return &GatewayEventReady{}, nil
-	case GatewayEventTypeResumed:
-		return &GatewayEventResumed{}, nil
-	case GatewayEventTypeReconnect:
-		return &GatewayEventReconnect{}, nil
-	case GatewayEventTypeInvalidSession:
-		return &GatewayEventInvalidSession{}, nil
-	case GatewayEventTypeChannelCreate:
-		return &GatewayEventChannelCreate{}, nil
-	case GatewayEventTypeChannelUpdate:
-		return &GatewayEventChannelUpdate{}, nil
-	case GatewayEventTypeChannelDelete:
-		return &GatewayEventChannelDelete{}, nil
-	case GatewayEventTypeChannelPinsUpdate:
-		return &GatewayEventChannelPinsUpdate{}, nil
-	case GatewayEventTypeThreadCreate:
-		return &GatewayEventThreadCreate{}, nil
-	case GatewayEventTypeThreadUpdate:
-		return &GatewayEventThreadUpdate{}, nil
-	case GatewayEventTypeThreadDelete:
-		return &GatewayEventThreadDelete{}, nil
-	case GatewayEventTypeThreadListSync:
-		return &GatewayEventThreadListSync{}, nil
-	case GatewayEventTypeThreadMemberUpdate:
-		return &GatewayEventThreadMemberUpdate{}, nil
-	case GatewayEventTypeThreadMembersUpdate:
-		return &GatewayEventThreadMembersUpdate{}, nil
-	case GatewayEventTypeGuildCreate:
-		return &GatewayEventGuildCreate{}, nil
-	case GatewayEventTypeGuildUpdate:
-		return &GatewayEventGuildUpdate{}, nil
-	case GatewayEventTypeGuildDelete:
-		return &GatewayEventGuildDelete{}, nil
-	case GatewayEventTypeGuildBanAdd:
-		return &GatewayEventGuildBanAdd{}, nil
-	case GatewayEventTypeGuildBanRemove:
-		return &GatewayEventGuildBanRemove{}, nil
-	case GatewayEventTypeGuildEmojisUpdate:
-		return &GatewayEventGuildEmojisUpdate{}, nil
-	case GatewayEventTypeGuildStickersUpdate:
-		return &GatewayEventGuildStickersUpdate{}, nil
-	case GatewayEventTypeGuildIntegrationsUpdate:
-		return &GatewayEventGuildIntegrationsUpdate{}, nil
-	case GatewayEventTypeGuildMemberAdd:
-		return &GatewayEventGuildMemberAdd{}, nil
-	case GatewayEventTypeGuildMemberRemove:
-		return &GatewayEventGuildMemberRemove{}, nil
-	case GatewayEventTypeGuildMemberUpdate:
-		return &GatewayEventGuildMemberUpdate{}, nil
-	case GatewayEventTypeGuildMembersChunk:
-		return &GatewayEventGuildMembersChunk{}, nil
-	case GatewayEventTypeGuildRoleCreate:
-		return &GatewayEventGuildRoleCreate{}, nil
-	case GatewayEventTypeGuildRoleUpdate:
-		return &GatewayEventGuildRoleUpdate{}, nil
-	case GatewayEventTypeGuildRoleDelete:
-		return &GatewayEventGuildRoleDelete{}, nil
-	case GatewayEventTypeGuildScheduledEventCreate:
-		return &GatewayEventGuildScheduledEventCreate{}, nil
-	case GatewayEventTypeGuildScheduledEventUpdate:
-		return &GatewayEventGuildScheduledEventUpdate{}, nil
-	case GatewayEventTypeGuildScheduledEventDelete:
-		return &GatewayEventGuildScheduledEventDelete{}, nil
-	case GatewayEventTypeGuildScheduledEventUserAdd:
-		return &GatewayEventGuildScheduledEventUserAdd{}, nil
-	case GatewayEventTypeGuildScheduledEventUserRemove:
-		return &GatewayEventGuildScheduledEventUserRemove{}, nil
-	case GatewayEventTypeGuildIntegrationCreate:
-		return &GatewayEventIntegrationCreate{}, nil
-	default:
-		return nil, ErrorNoGatewayEventByName
-	}
-}
-
-//todo: isvalid functions and tests
 
 type GatewayEvent interface {
 	//Type of GatewayEvent
@@ -825,7 +737,7 @@ func (GatewayEventIntegrationCreate) Opcode() GatewayOpcode {
 //GatewayEventClientShutdown is the event thrown when the Client Library is shutdown
 type GatewayEventClientShutdown struct {
 	//err that caused shutdown
-	Err error
+	err error
 }
 
 func (GatewayEventClientShutdown) Type() GatewayEventType {
@@ -838,8 +750,5 @@ func (GatewayEventClientShutdown) Opcode() GatewayOpcode {
 
 //Error that caused the shutdown, nil if no error and standard shutdown
 func (g GatewayEventClientShutdown) Error() error {
-	return g.Err
-}
-
-type GatewayEventHeartBeatRequest struct {
+	return g.err
 }
