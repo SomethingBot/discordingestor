@@ -16,12 +16,6 @@ steps:
       - go mod tidy
       - git diff --exit-code -- go.mod go.sum
       - git diff --exit-code -- go.mod go.sum > test -z
-  - name: generate-check
-    image: somethingbot/golang:1.18
-    commands:
-      - go generate
-      - git diff
-      - test -z "$(git diff-index --name-only HEAD --)"
   - name: build and vet
     image: somethingbot/golang:1.18
     commands:
