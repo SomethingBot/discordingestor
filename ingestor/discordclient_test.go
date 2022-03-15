@@ -42,7 +42,7 @@ func (m *MockDiscordClient) Close() error {
 	return nil
 }
 
-func (m *MockDiscordClient) AddHandlerFunc(interface{}) error {
+func (m *MockDiscordClient) AddHandlerFunc(eventType primitives.GatewayEventType, handlerFunc func(event primitives.GatewayEvent)) error {
 	return nil
 }
 

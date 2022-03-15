@@ -1,75 +1,88 @@
 package discord
 
 import (
+	"bytes"
 	"compress/zlib"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/SomethingBot/discordingestor/discord/libinfo"
 	"github.com/SomethingBot/discordingestor/discord/primitives"
 	"github.com/gorilla/websocket"
 	"io"
-	"log"
 	"net/http"
-	"net/url"
-	"runtime"
-	"strconv"
 	"sync"
-	"syscall"
 	"time"
 )
 
-type discordConfig struct {
-	//apikey is the apikey without a "Bot " prefix
-	apikey     string
-	intents    primitives.GatewayIntent
-	gatewayUrl url.URL
-}
-
-type discordWebsocket struct {
-	conn                *websocket.Conn
-	stopChan            chan struct{}
-	closeGroup          sync.WaitGroup
-	heartbeatStopChan   chan struct{}
-	heartbeatCloseGroup sync.WaitGroup
-}
-
 type Client struct {
-	discordConfig    discordConfig
-	discordWebsocket discordWebsocket
-	running          bool
-	runningLock      sync.Mutex
-	eventDistributor EventDistributor
-	logger           *log.Logger
-	//todo: ratelimiter
+	apikey     string
+	gatewayUrl string
+	intents    primitives.GatewayIntent
+
+	conn     *websocket.Conn
+	sequence syncedCounter
+
+	eDist eDist
+
+	closeErr  error
+	closeLock sync.Mutex
+
+	wg         sync.WaitGroup
+	senderChan chan senderWork
 }
 
-//New Client using specified apikey without a "Bot " prefix
-func New(apikey string, intents primitives.GatewayIntent, logger *log.Logger) *Client {
-	client := &Client{}
-	client.logger = logger
-	client.discordConfig.apikey = apikey
-	client.discordConfig.intents = intents
-	client.discordWebsocket.stopChan = make(chan struct{})
-	return client
+func NewClient(apikey, endpoint string, intents primitives.GatewayIntent, eDist eDist) *Client {
+	return &Client{
+		apikey:     apikey,
+		gatewayUrl: endpoint,
+		intents:    intents,
+		eDist:      eDist,
+		senderChan: make(chan senderWork, 1),
+	}
 }
 
-func (c *Client) startReadGatewayWorker() {
+type senderWork struct {
+	reader   io.Reader
+	response chan error
+}
+
+func (c *Client) startWebsocketSender() {
 
 }
 
-//handleGatewayHandshake separate to prevent having extra checking for events that are not possible
-func (c *Client) handleGatewayHandshake() error {
-	conn := c.discordWebsocket.conn
+func (c *Client) sendMessage(reader io.Reader) error {
+	response := make(chan error)
+	c.senderChan <- senderWork{
+		reader:   reader,
+		response: nil,
+	}
+	return <-response
+}
+
+func (c *Client) startWebsocketReader() {
+
+}
+
+func (c *Client) handshake() error {
+	var err error
+
+	readCloser := io.NopCloser(bytes.NewBuffer(nil)) //todo: replace with a noOpReader, wasting memory for a bit
+	defer func() {
+		if err != nil {
+			err2 := readCloser.Close()
+			if err2 != nil {
+				err = fmt.Errorf("%w, also could not close readCloser %v", err, err2)
+			}
+		}
+	}()
 
 	var messageType int
-	var err error
 	var reader io.Reader
-	var event primitives.GEvent //todo: might need to clear seq and other if we get one without and pass it somewhere its used and now has old data from a previous loop
+	var gEvent primitives.GEvent
 	var decoder *json.Decoder
 	for {
-		messageType, reader, err = conn.NextReader()
+		messageType, reader, err = c.conn.NextReader()
 		if err != nil {
 			return fmt.Errorf("read error (%w)", err)
 		}
@@ -77,99 +90,67 @@ func (c *Client) handleGatewayHandshake() error {
 		if messageType == websocket.BinaryMessage {
 			reader, err = zlib.NewReader(reader)
 			if err != nil {
+				return fmt.Errorf("could not create new zlib reader (%w)", err)
+			}
+		} else {
+			readCloser = io.NopCloser(reader)
+		}
+
+		decoder = json.NewDecoder(readCloser)
+		err = decoder.Decode(&gEvent)
+		if err != nil {
+			return fmt.Errorf("could not decode into gEvent (%w)", err)
+		}
+
+		c.sequence.set(gEvent.SequenceNumber)
+
+		switch gEvent.Opcode {
+		case primitives.GatewayOpcodeHello:
+			hello := primitives.GatewayEventHello{}
+			err = json.Unmarshal(gEvent.Data, &hello)
+			if err != nil {
+				return fmt.Errorf("could not unmarshal gEvent.EventDate into a GatewayEventHello (%w)", err)
+			}
+			c.eDist.FireEvent(hello)
+		default:
+			var gatewayEvent primitives.GatewayEvent
+			gatewayEvent, err = primitives.GetGatewayEventByName(gEvent.Name)
+			if err != nil {
 				return err
 			}
-			//needs a defer or something to prevent leaking zlib reader
-		}
-
-		//todo: check for fields sent that are not documented
-		decoder = json.NewDecoder(reader)
-		err := decoder.Decode(&event)
-		if err != nil {
-			return fmt.Errorf("error decoding json (%w)", err)
-		}
-
-		switch event.Opcode {
-		case primitives.GatewayOpcodeHello:
-			hello := primitives.GatewayEventHello{} //todo: dont make new variables
-			err = json.Unmarshal(event.EventData, &hello)
+			err = json.Unmarshal(gEvent.Data, &gatewayEvent)
 			if err != nil {
-				return fmt.Errorf("error unmarshaling heartbeat (%w)", err)
+				return err
 			}
-			//todo: handle heartbeat in goroutine
-
-			//heartbeatAck := `{"op":11}` //todo: this is sent by discord, check if we get one after sending heartbeat, if we dont, reconnect
-			//todo: needs to detect if we get an ACK after heartbeating
-			//err = conn.WriteMessage(websocket.TextMessage, []byte(heartbeatAck)) //todo: convert to const or something maybe not
-			//if err != nil {
-			//	return fmt.Errorf("could not write heartbeat ack to websocket")
-			//}
-
-			//todo: make actual struct
-			identify := `
-			{
-			  "op": 2,
-			  "d": {
-				"token": "Bot ` + c.discordConfig.apikey + `",
-				"intents": ` + strconv.FormatUint(uint64(c.discordConfig.intents), 10) + `,
-				"compress": true,
-				"properties": {
-				  "$os": "` + runtime.GOOS + `",
-				  "$browser": "discordingestor",
-				  "$device": "discordingestor"
-				}
-			  }
-			}` //todo: this needs maybe a better name since discordingestor is a pretty non-searchable name
-
-			fmt.Printf("size (%v)\n", len(identify))
-
-			err = conn.WriteMessage(websocket.TextMessage, []byte(identify))
-			if err != nil {
-				return fmt.Errorf("could not write identify to websocket (%w)", err)
-			}
-			return nil
-		default:
-			event = primitives.GetGatewayEventForType(event.EventName)
-			err = json.Unmarshal(event.EventData)
-		}
-
-		if messageType == websocket.BinaryMessage { //close zlibreader better, maybe dont check messagetype twice (defer?)
-			err = reader.(io.ReadCloser).Close()
-			if err != nil {
-				return fmt.Errorf("error closing zlib readcloser (%w)", err)
-			}
+			c.eDist.FireEvent(gatewayEvent)
 		}
 	}
-
-	//invalidsession needs a special handle since discord for some reason sends it as a boolean where everything else is an array ???
 }
 
-func (c *Client) handleGateway() {
-
+type heartbeat struct {
+	primitives.GEvent
 }
 
-func (c *Client) sendGatewayMessage(event primitives.GatewayEvent) error {
-	return nil
-}
-
-func (c *Client) startHeartbeatWorker() {
-	heartbeatRequestChan := make(chan struct{})
-	c.eventDistributor.RegisterHandler(primitives.GatewayEventTypeHeartbeatRequest, func(event primitives.GatewayEvent) {
-		heartbeatRequestChan <- struct{}{}
+func (c *Client) startHeartBeatWorker() {
+	shutdown := make(chan struct{})
+	c.eDist.RegisterHandler(primitives.GatewayEventTypeClientShutdown, func(event primitives.GatewayEvent) {
+		shutdown <- struct{}{}
 	})
-	heartbeatACKChan := make(chan primitives.GatewayEventHeartbeatACK)
-	c.eventDistributor.RegisterHandler(primitives.GatewayEventTypeHeartbeatACK, func(event primitives.GatewayEvent) {
-		heartbeatACKChan <- event.(primitives.GatewayEventHeartbeatACK) //if this panics, it's an event handler implementation issue, not us
+	request := make(chan struct{})
+	c.eDist.RegisterHandler(primitives.GatewayEventTypeHeartbeatRequest, func(event primitives.GatewayEvent) {
+		request <- struct{}{}
 	})
-	heartbeatIntervalChan := make(chan int)
-	c.eventDistributor.RegisterHandlerOnce(primitives.GatewayEventTypeHello, func(event primitives.GatewayEvent) {
-		heartbeatIntervalChan <- event.(primitives.GatewayEventHello).Interval
+	ack := make(chan primitives.GatewayEventHeartbeatACK)
+	c.eDist.RegisterHandler(primitives.GatewayEventTypeHeartbeatACK, func(event primitives.GatewayEvent) {
+		ack <- event.(primitives.GatewayEventHeartbeatACK) //if this panics, it's an event handler implementation issue, not us
 	})
-	c.discordWebsocket.heartbeatStopChan = make(chan struct{})
-	c.discordWebsocket.heartbeatCloseGroup.Add(1)
+	intervalChange := make(chan int)
+	c.eDist.RegisterHandlerOnce(primitives.GatewayEventTypeHello, func(event primitives.GatewayEvent) {
+		intervalChange <- event.(primitives.GatewayEventHello).Interval
+	})
 	go func() {
-		interval := <-heartbeatIntervalChan
-		close(heartbeatIntervalChan)
+		interval := <-intervalChange
+		close(intervalChange)
 
 		intervalDuration := time.Duration(interval) * time.Millisecond
 		timer := time.NewTimer(intervalDuration)
@@ -178,127 +159,85 @@ func (c *Client) startHeartbeatWorker() {
 			select {
 			case <-timer.C:
 				if !hasACKed {
-					//https://discord.com/developers/docs/topics/gateway#heartbeating-example-gateway-heartbeat-ack
-					//if discord hasn't ACKed since last heartbeat we need to reset the gateway
-					//todo: maybe internally reconnect instead of shutting down
-					//todo: this needs to be an event AKA GatewayEventClientShutdown, as this doesnt work on windows
-					err := syscall.Kill(syscall.Getpid(), syscall.SIGINT)
-					if err != nil {
-						c.logger.Fatalf("failed to call syscall.Kill(syscall.Getpid(), syscall.SIGINT)\n")
-					}
+					c.eDist.FireEvent(primitives.GatewayEventClientShutdown{Err: fmt.Errorf("discord: did not receive an ACK after sending a heartbeat")})
+					c.eDist.WaitTilDone()
 					return
 				}
-				c.sendGatewayMessage(gatewayeventhear)
+				//send heartbeat
 				timer.Reset(intervalDuration)
-			case <-heartbeatACKChan:
+			case <-ack:
 				hasACKed = true
-			case heartbeatRequest := <-heartbeatRequestChan:
+			case <-request:
 				if !timer.Stop() {
 					<-timer.C
 				}
 				hasACKed = false
-			case <-c.discordWebsocket.stopChan:
+				//send heartbeat
+			case <-shutdown:
 				if !timer.Stop() {
 					<-timer.C
 				}
-				c.discordWebsocket.heartbeatCloseGroup.Done()
+				c.wg.Done()
 			}
 		}
 	}()
 }
 
-func (c *Client) stopHeartbeatWorker() {
-	close(c.discordWebsocket.heartbeatStopChan)
-	c.discordWebsocket.heartbeatCloseGroup.Wait()
-}
-
-//Open the discordclient library, this is non-blocking, so to find out when the server closes we send an interrupt to the current process
-//todo: probably should have an event to do this instead and have callers listen for the event
 func (c *Client) Open() error {
-	c.runningLock.Lock()
-	defer c.runningLock.Unlock()
-
-	if c.discordConfig.gatewayUrl.String() == "" {
-		gURI, err := primitives.GetGatewayURI() //todo: migrate to https://discord.com/developers/docs/topics/gateway#get-gateway-bot
-		if err != nil {
-			return fmt.Errorf("could not GetGatewayURI (%w)", err)
-		}
-		c.discordConfig.gatewayUrl = gURI
-	}
-
 	dialer := websocket.Dialer{
 		Proxy:            http.ProxyFromEnvironment,
 		HandshakeTimeout: 45 * time.Second,
 	}
-	dialer.TLSClientConfig = &tls.Config{InsecureSkipVerify: true} //todo: remove since its for debugging
 
 	gatewayHttpHeader := http.Header{}
 	gatewayHttpHeader.Set("User-Agent", libinfo.BotUserAgent)
 	gatewayHttpHeader.Set("accept-encoding", "zlib")
 
-	//conn, _, err := dialer.DialContext(context.Background(), c.discordConfig.gatewayUrl.String()+"/?v=9&encoding=json", gatewayHttpHeader)
-	//if err != nil {
-	//	return err
-	//}
-	conn, _, err := dialer.DialContext(context.Background(), "wss://localhost:8080"+"/?v=9&encoding=json", gatewayHttpHeader)
+	var err error
+	c.conn, _, err = dialer.DialContext(context.Background(), c.gatewayUrl+"/?v=9&encoding=json", gatewayHttpHeader)
 	if err != nil {
+		_ = c.conn.Close()
 		return err
 	}
-	c.discordWebsocket.conn = conn
-
-	defer func() { //todo: make sure to send exit code to discord before dying (if applicable)
+	defer func() {
 		if err != nil {
-			err2 := c.closeWebSocket()
+			err2 := c.conn.Close()
 			if err2 != nil {
-				err = fmt.Errorf("could not close websocket (%v), after error (%w)\n", err2, err)
+				err = fmt.Errorf("%w, also could not close c.Conn %v", err, err2)
 			}
 		}
 	}()
-
-	err = c.handleGatewayHandshake()
+	err = c.handshake()
 	if err != nil {
-		return fmt.Errorf("discord: gateway handshake error (%w)", err)
+		return fmt.Errorf("could not handshake (%w)", err)
 	}
-
-	c.startHeartbeatWorker()
-
-	go c.handleGateway()
-
-	c.running = true
+	c.startHeartBeatWorker()
 	return nil
 }
 
-func (c *Client) closeWebSocket() error {
-	c.stopHeartbeatWorker()
+func (c *Client) closeWithError(err error) error { //todo: should return error if closeWithError is called before hand
+	c.closeLock.Lock()
+	defer c.closeLock.Unlock()
 
-	//close actual websocket
-	close(c.discordWebsocket.stopChan)
-	c.discordWebsocket.closeGroup.Wait()
-	err := c.discordWebsocket.conn.Close()
-	if err != nil {
-		return err
+	if c.closeErr != nil {
+		return c.closeErr
 	}
-	return nil
+	c.closeErr = err
+
+	c.eDist.FireEvent(primitives.GatewayEventClientShutdown{Err: fmt.Errorf("discord: did not receive an ACK after sending a heartbeat")})
+	c.eDist.WaitTilDone()
+
+	//todo: stop writer
+	//todo: stop reader
+
+	return c.closeErr
 }
 
 func (c *Client) Close() error {
-	c.runningLock.Lock()
-	defer c.runningLock.Unlock()
-
-	if !c.running {
-		return fmt.Errorf("discord: client already closed")
-	}
-
-	err := c.closeWebSocket()
-	if err != nil {
-		return err
-	}
-
-	c.running = false
-	return nil
+	return c.closeWithError(nil)
 }
 
 func (c *Client) AddHandlerFunc(eventType primitives.GatewayEventType, handlerFunc func(event primitives.GatewayEvent)) error {
-	c.eventDistributor.RegisterHandler(eventType, handlerFunc)
+	c.eDist.RegisterHandler(eventType, handlerFunc)
 	return nil
 }

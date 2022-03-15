@@ -2,7 +2,6 @@ package discord
 
 import (
 	"github.com/SomethingBot/discordingestor/discord/primitives"
-	"log"
 	"os"
 	"testing"
 )
@@ -25,7 +24,7 @@ func TestClient_OpenClose(t *testing.T) {
 		}
 	}
 
-	client := New(string(apikey), primitives.GatewayIntentAll, log.Default())
+	client := NewClient(apikey, "", primitives.GatewayIntentAll, NewEventDistributor())
 	err := client.Open()
 	if err != nil {
 		t.Fatalf("error on open (%v)\n", err)
