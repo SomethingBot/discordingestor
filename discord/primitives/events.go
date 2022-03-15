@@ -2,7 +2,7 @@ package primitives
 
 import "time"
 
-//go:generate enumer -type GatewayEventType -transform upper events.go
+//go:generate enumer -type GatewayEventType -transform upper -output=events_gatewayevents.go events.go
 //GatewayEventType documented at https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events
 type GatewayEventType int
 
