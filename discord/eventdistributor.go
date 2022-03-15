@@ -5,6 +5,13 @@ import (
 	"sync"
 )
 
+type eDist interface {
+	FireEvent(event primitives.GatewayEvent)
+	RegisterHandler(eventType primitives.GatewayEventType, handler EventHandler) DeregisterFunction
+	RegisterHandlerOnce(eventType primitives.GatewayEventType, handler EventHandler)
+	WaitTilDone()
+}
+
 type EventHandler func(event primitives.GatewayEvent)
 
 type handlerEntry struct { //todo: maybe try letting this be locked separately from map containing it
