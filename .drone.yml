@@ -14,8 +14,8 @@ steps:
     commands:
       - test -z $(go fmt ./...)
       - go mod tidy
-      - git diff --exit-code -- go.mod go.sum
-      - git diff --exit-code -- go.mod go.sum > test -z
+      - git diff --exit-code
+      - git diff --exit-code > test -z
   - name: generate-check
     image: somethingbot/golang:1.18
     commands:
