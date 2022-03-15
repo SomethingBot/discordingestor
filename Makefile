@@ -7,13 +7,13 @@ build:
 
 test:
 	go vet -race ./...
-	go test ./...
+	go test -test.short ./...
 
 spawn-redis:
 	podman run -p 6379:6379 --rm --name alias-redis-dev docker.io/library/redis
 
 test-integration:
-	go test -tags=integration
+	go test
 
 lint:
 	go fmt ./...
