@@ -140,6 +140,10 @@ func GetGatewayEventByName(name string) (GatewayEvent, error) { //todo: finish f
 	switch GatewayEventType(name) {
 	case GatewayEventTypeHello:
 		return &GatewayEventHello{}, nil
+	case GatewayEventTypeHeartbeatRequest:
+		return &GatewayEventHeartBeatRequest{}, nil
+	case GatewayEventTypeClientShutdown:
+		return &GatewayEventClientShutdown{}, nil
 	case GatewayEventTypeHeartbeatACK:
 		return &GatewayEventHeartbeatACK{}, nil
 	case GatewayEventTypeReady:
@@ -212,6 +216,10 @@ func GetGatewayEventByName(name string) (GatewayEvent, error) { //todo: finish f
 		return &GatewayEventGuildScheduledEventUserRemove{}, nil
 	case GatewayEventTypeGuildIntegrationCreate:
 		return &GatewayEventIntegrationCreate{}, nil
+	case GatewayEventTypeGuildIntegrationUpdate:
+		return &GatewayEventGuildIntegrationsUpdate{}, nil
+	case GatewayEventTypeGuildIntegrationDelete:
+		return &GatewayEventGuildIntegrationDelete{}, nil
 	default:
 		return nil, ErrorNoGatewayEventByName
 	}
@@ -841,5 +849,29 @@ func (g GatewayEventClientShutdown) Error() error {
 	return g.Err
 }
 
-type GatewayEventHeartBeatRequest struct {
+type GatewayEventHeartBeatRequest struct{}
+
+func (g GatewayEventHeartBeatRequest) Type() GatewayEventType {
+	return GatewayEventTypeHeartbeatRequest
+}
+
+func (g GatewayEventHeartBeatRequest) Opcode() GatewayOpcode {
+	return GatewayOpcodeHeartbeat
+}
+
+type GatewayEventGuildIntegrationDelete struct {
+	//ID of the integration
+	ID Snowflake
+	//GuildID of the integration
+	GuildID Snowflake
+	//ApplicationID of bot/OAuth2 application for this discord integration
+	ApplicationID Snowflake
+}
+
+func (g GatewayEventGuildIntegrationDelete) Type() GatewayEventType {
+	return GatewayEventTypeGuildIntegrationDelete
+}
+
+func (g GatewayEventGuildIntegrationDelete) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
 }
