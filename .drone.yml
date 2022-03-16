@@ -63,9 +63,13 @@ steps:
     image: golang:1.18
     commands:
       - LATEST_TAG=$(git tag --sort=committerdate | tail -1)
+      - echo $LATEST_TAG
       - LATEST_TAG_WITHOUT_PARENTHESES=$(git tag --sort=committerdate | tail -1 | awk '{print substr($0,2, length($0))}')
+      - echo $LATEST_TAG_WITHOUT_PARENTHESES
       - TAG_AT_HEAD=$(git tag --points-at HEAD)
+      - echo $TAG_AT_HEAD
       - LIBINFO_VERSION=$(grep "BotLibraryVersion =" discord/libinfo/info.go | awk '{print substr($3, 2, length($3)-2)}')
+      - echo LIBINFO_VERSION
       - echo Current latest tag is $LATEST_TAG HEAD is $TAG_AT_HEAD
       - echo Current tag in discord/libinfo/info.go is $LIBINFO_VERSION
       - test $LIBINFO_VERSION = $LATEST_TAG_WITHOUT_PARENTHESES
