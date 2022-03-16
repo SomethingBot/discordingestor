@@ -46,3 +46,22 @@ steps:
     environment:
       discordapikey:
         from_secret: discordapikey
+---
+kind: pipeline
+type: docker
+name: tagged version in libinfo
+
+trigger:
+  event:
+    - push
+
+depends_on:
+  - build
+
+steps:
+  - name: check version
+    image: golang:1.18
+    commands:
+      - echo Current latest tag is $(git tag --sort=committerdate | tail -1) HEAD is $(git tag --points-at HEAD)
+      - echo Current tag in discord/libinfo/info.go is $(grep "BotLibraryVersion =" discord/libinfo/info.go | awk '{print substr($3, 2, length($3)-2)}')
+      - test $(grep "BotLibraryVersion =" discord/libinfo/info.go | awk '{print substr($3, 2, length($3)-2)}') = $(git tag --sort=committerdate | tail -1 | awk '{print substr($0,2, length($0))}')
