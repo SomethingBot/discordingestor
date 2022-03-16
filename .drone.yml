@@ -53,10 +53,10 @@ name: tagged version in libinfo
 
 trigger:
   event:
-    - push
+    - tag
 
-#depends_on:
-#  - build
+depends_on:
+  - build
 
 steps:
   - name: check version
