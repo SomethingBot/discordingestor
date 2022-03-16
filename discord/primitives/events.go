@@ -217,9 +217,15 @@ func GetGatewayEventByName(name string) (GatewayEvent, error) { //todo: finish f
 	case GatewayEventTypeGuildIntegrationCreate:
 		return &GatewayEventIntegrationCreate{}, nil
 	case GatewayEventTypeGuildIntegrationUpdate:
-		return &GatewayEventGuildIntegrationsUpdate{}, nil
+		return &GatewayEventGuildIntegrationUpdate{}, nil
 	case GatewayEventTypeGuildIntegrationDelete:
 		return &GatewayEventGuildIntegrationDelete{}, nil
+	case GatewayEventTypeInviteCreate:
+		return &GatewayEventInviteCreate{}, nil
+	case GatewayEventTypeInviteDelete:
+		return &GatewayEventInviteDelete{}, nil
+	case GatewayEventTypeMessageCreate:
+		return &GatewayEventMessageCreate{}, nil
 	default:
 		return nil, ErrorNoGatewayEventByName
 	}
@@ -849,6 +855,7 @@ func (g GatewayEventClientShutdown) Error() error {
 	return g.Err
 }
 
+//GatewayEventHeartBeatRequest is an internal event thrown when library receives a request from Websocket to heartbeat immediately
 type GatewayEventHeartBeatRequest struct{}
 
 func (g GatewayEventHeartBeatRequest) Type() GatewayEventType {
@@ -859,13 +866,14 @@ func (g GatewayEventHeartBeatRequest) Opcode() GatewayOpcode {
 	return GatewayOpcodeHeartbeat
 }
 
+//GatewayEventGuildIntegrationDelete documented at https://discord.com/developers/docs/topics/gateway#integration-delete
 type GatewayEventGuildIntegrationDelete struct {
 	//ID of the integration
-	ID Snowflake
+	ID Snowflake `json:"id"`
 	//GuildID of the integration
-	GuildID Snowflake
+	GuildID Snowflake `json:"guild_id"`
 	//ApplicationID of bot/OAuth2 application for this discord integration
-	ApplicationID Snowflake
+	ApplicationID Snowflake `json:"application_id"`
 }
 
 func (g GatewayEventGuildIntegrationDelete) Type() GatewayEventType {
@@ -873,5 +881,86 @@ func (g GatewayEventGuildIntegrationDelete) Type() GatewayEventType {
 }
 
 func (g GatewayEventGuildIntegrationDelete) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+//GatewayEventGuildIntegrationUpdate documented at https://discord.com/developers/docs/topics/gateway#integration-update
+type GatewayEventGuildIntegrationUpdate struct {
+	//GuildID of Guild that integration is updated in
+	GuildID Snowflake `json:"guild_id"`
+}
+
+func (g GatewayEventGuildIntegrationUpdate) Type() GatewayEventType {
+	return GatewayEventTypeGuildIntegrationUpdate
+}
+
+func (g GatewayEventGuildIntegrationUpdate) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+//GatewayEventInviteCreate is documented at https://discord.com/developers/docs/topics/gateway#invite-create
+type GatewayEventInviteCreate struct {
+	//ChannelID is the Channel the Invite leads to
+	ChannelID Snowflake `json:"channel_id"`
+	//InviteCode is the unique Invite code
+	InviteCode string `json:"code"`
+	//CreatedAt is when the Invite was created
+	CreatedAt time.Time `json:"created_at"`
+	//GuildID is the Guild ID for the Invite
+	GuildID Snowflake `json:"guild_id"`
+	//Inviter is the User that created the Invite
+	Inviter User `json:"inviter"`
+	//MaxAge of Invite
+	MaxAge int `json:"max_age"`
+	//MaxUses of Invite
+	MaxUses int `json:"max_uses"`
+	//TargetType is the target type for a ChannelTypeGuildVoice Invite
+	TargetType InviteTargetType `json:"target_type"`
+	//TargetUser is the User whose Stream to display for a ChannelTypeGuildVoice Invite
+	TargetUser User `json:"target_user"`
+	//TargetApplication is the EmbeddedApplication to open for a ChannelTypeGuildVoice embedded application Invite
+	TargetApplication Application `json:"target_application"`
+	//IsTemporary Invite that will kick Users if they leave and not assigned a Role
+	IsTemporary bool `json:"temporary"`
+	//Uses of Invite
+	Uses int `json:"uses"`
+}
+
+func (g GatewayEventInviteCreate) Type() GatewayEventType {
+	return GatewayEventTypeInviteCreate
+}
+
+func (g GatewayEventInviteCreate) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+//GatewayEventInviteDelete is documented at https://discord.com/developers/docs/topics/gateway#invite-delete
+type GatewayEventInviteDelete struct {
+	//ChannelID Invite is removed from
+	ChannelID Snowflake `json:"channel_id"`
+	//GuildID Invite is deleted from
+	GuildID Snowflake `json:"guild_id"`
+	//InviteCode for Invite
+	InviteCode string `json:"code"`
+}
+
+func (GatewayEventInviteDelete) Type() GatewayEventType {
+	return GatewayEventTypeInviteDelete
+}
+
+func (GatewayEventInviteDelete) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+//GatewayEventMessageCreate is documented at https://discord.com/developers/docs/topics/gateway#message-create
+type GatewayEventMessageCreate struct {
+	Message
+}
+
+func (GatewayEventMessageCreate) Type() GatewayEventType {
+	return GatewayEventTypeMessageCreate
+}
+
+func (GatewayEventMessageCreate) Opcode() GatewayOpcode {
 	return GatewayOpcodeDispatch
 }

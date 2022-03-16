@@ -5,6 +5,7 @@ import (
 )
 
 func TestGetGatewayEventByName(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		eventName string
 		want      GatewayEventType
@@ -318,6 +319,8 @@ func TestGetGatewayEventByName(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.eventName, func(t *testing.T) {
+			tt := tt
+			t.Parallel()
 			got, err := GetGatewayEventByName(tt.eventName)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetGatewayEventByName() error = %v, wantErr %v", err, tt.wantErr)
