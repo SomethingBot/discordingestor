@@ -64,4 +64,4 @@ steps:
     commands:
       - echo Current latest tag is $(git tag --sort=committerdate | tail -1) HEAD is $(git tag --points-at HEAD)
       - echo Current tag in discord/libinfo/info.go is $(grep "BotLibraryVersion =" discord/libinfo/info.go | awk '{print substr($3, 2, length($3)-2)}')
-      - test $(grep "BotLibraryVersion =" discord/libinfo/info.go | awk '{print substr($3, 2, length($3)-2)}') = $(git tag --sort=committerdate | tail -1 | awk '{print substr($0,2, length($0))}')
+      - bash -c "test $(grep "BotLibraryVersion =" discord/libinfo/info.go | awk '{print substr($3, 2, length($3)-2)}') = $(git tag --sort=committerdate | tail -1 | awk '{print substr($0,2, length($0))}')"
