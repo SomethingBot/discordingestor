@@ -59,8 +59,10 @@ trigger:
 #  - build
 
 steps:
-  - name: check version is HEAD
+  - name: check version
     image: golang:1.18
     commands:
-      - echo "ZWNobyBDdXJyZW50IGxhdGVzdCB0YWcgaXMgJChnaXQgdGFnIC0tc29ydD1jb21taXR0ZXJkYXRlIHwgdGFpbCAtMSkgSEVBRCBpcyAkKGdpdCB0YWcgLS1wb2ludHMtYXQgSEVBRCkKZWNobyBDdXJyZW50IHRhZyBpbiBkaXNjb3JkL2xpYmluZm8vaW5mby5nbyBpcyAkKGdyZXAgIkJvdExpYnJhcnlWZXJzaW9uID0iIGRpc2NvcmQvbGliaW5mby9pbmZvLmdvIHwgYXdrICd7cHJpbnQgc3Vic3RyKCQzLCAyLCBsZW5ndGgoJDMpLTIpfScpCnRlc3QgJChncmVwICJCb3RMaWJyYXJ5VmVyc2lvbiA9IiBkaXNjb3JkL2xpYmluZm8vaW5mby5nbyB8IGF3ayAne3ByaW50IHN1YnN0cigkMywgMiwgbGVuZ3RoKCQzKS0yKX0nKSA9ICQoZ2l0IHRhZyAtLXNvcnQ9Y29tbWl0dGVyZGF0ZSB8IHRhaWwgLTEgfCBhd2sgJ3twcmludCBzdWJzdHIoJDAsMiwgbGVuZ3RoKCQwKSl9JykK" | base64 -d | sh
-#//above is just checking, but in base64 to prevent drone from messing with variables
+      - git pull origin --tags master
+      - echo Current latest tag is $(git tag --sort=committerdate | tail -1) HEAD is $(git tag --points-at HEAD)
+      - echo Current tag in discord/libinfo/info.go is $(grep "BotLibraryVersion =" discord/libinfo/info.go | awk '{print substr($3, 2, length($3)-2)}')
+      - test $(grep "BotLibraryVersion =" discord/libinfo/info.go | awk '{print substr($3, 2, length($3)-2)}') = $(git tag --sort=committerdate | tail -1 | awk '{print substr($0,2, length($0))}')
