@@ -109,6 +109,88 @@ type Attachment struct {
 	IsEphemeral bool `json:"ephemeral"`
 }
 
+//Reaction is documented at https://discord.com/developers/docs/resources/channel#reaction-object
+type Reaction struct {
+	//Count of times Emoji has been used
+	Count int `json:"count"`
+	//IsMe who reacted
+	IsMe bool `json:"me"`
+	//Emoji information for Reaction
+	Emoji Emoji `json:"emoji"`
+}
+
+//MessageActivityType documented at https://discord.com/developers/docs/resources/channel#message-object-message-activity-types
+type MessageActivityType int
+
+const (
+	//MessageActivityTypeNil is an intentionally Nil MessageActivityType
+	MessageActivityTypeNil MessageActivityType = 0
+	//MessageActivityTypeJoin is when an MessageActivity is a Join
+	MessageActivityTypeJoin MessageActivityType = 1
+	//MessageActivityTypeSpectate is when a MessageActivity is to Spectate
+	MessageActivityTypeSpectate MessageActivityType = 2
+	//MessageActivityTypeListen is when a MessageActivity is to Listen
+	MessageActivityTypeListen MessageActivityType = 3
+	//MessageActivityTypeJoinRequest is when a MessageActivity is a JoinRequest
+	MessageActivityTypeJoinRequest MessageActivityType = 5
+)
+
+//IsValid MessageActivityType
+func (m MessageActivityType) IsValid() bool {
+	switch m {
+	case MessageActivityTypeJoin,
+		MessageActivityTypeSpectate,
+		MessageActivityTypeListen,
+		MessageActivityTypeJoinRequest:
+		return true
+	default:
+		return false
+	}
+}
+
+//MessageActivity documented at https://discord.com/developers/docs/resources/channel#message-object-message-activity-structure
+type MessageActivity struct {
+	//Type of MessageActivity
+	Type MessageActivityType `json:"type"`
+	//PartyID of https://discord.com/developers/docs/rich-presence/how-to#updating-presence-update-presence-payload-fields
+	PartyID string `json:"party_id"`
+}
+
+//MessageReference documented at https://discord.com/developers/docs/resources/channel#message-reference-object-message-reference-structure
+type MessageReference struct {
+	//MessageID of original Message
+	MessageID Snowflake `json:"message_id"`
+	//ChannelID where original Message is from
+	ChannelID Snowflake `json:"channel_id"`
+	//GuildID where original Message is from
+	GuildID Snowflake `json:"guild_id"`
+	//FailIfNotExists or send as normal non-reply
+	FailIfNotExists bool `json:"fail_if_not_exists"`
+}
+
+//MessageFlag documented at https://discord.com/developers/docs/resources/channel#message-object-message-flags
+type MessageFlag uint16
+
+const (
+	//MessageFlagNil is an intentionally 0 MessageFlag
+	MessageFlagNil MessageFlag = 0
+	//MessageFlagCrossPosted is when a Message has been published to subscribed Channel's
+	MessageFlagCrossPosted MessageFlag = 1 << 0
+	//MessageFlagIsCrossPost is when a Message originated from a subscribed Channel
+	MessageFlagIsCrossPost MessageFlag = 1 << 1
+	//MessageFlagSuppressEmbeds is when a Message should not include any Embed's when serializing this Message
+	MessageFlagSuppressEmbeds MessageFlag = 1 << 2
+
+	MessageFlagSourceMessageDeleted             MessageFlag = 1 << 3
+	MessageFlagUrgent                           MessageFlag = 1 << 4
+	MessageFlagHasThread                        MessageFlag = 1 << 5
+	MessageFlagEphemeral                        MessageFlag = 1 << 6
+	MessageFlagLoading                          MessageFlag = 1 << 7
+	MessageFlagFailedToMentionSomeRolesInThread MessageFlag = 1 << 8
+)
+
+
+
 //Message documented at https://discord.com/developers/docs/resources/channel#message-object
 type Message struct {
 	ID                Snowflake        `json:"id"`
@@ -126,4 +208,14 @@ type Message struct {
 	MentionChannels   []ChannelMention `json:"mention_channels"`
 	Attachments       []Attachment     `json:"attachments"`
 	Embeds            []Embed          `json:"embeds"`
+	Reactions         []Reaction       `json:"reactions"`
+	Nonce             string           `json:"nonce"`
+	IsPinned          bool             `json:"pinned"`
+	WebhookID         Snowflake        `json:"webhook_id"`
+	Type              int              `json:"type"`
+	Activity          MessageActivity  `json:"activity"`
+	Application       Application      `json:"application"`
+	ApplicationID     Snowflake        `json:"application_id"`
+	MessageReference  MessageReference `json:"message_reference"`
+	Flags             MessageFlag      `json:"flags"`
 }

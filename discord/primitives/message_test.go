@@ -130,3 +130,47 @@ func TestMessageType_IsValid(t *testing.T) {
 		})
 	}
 }
+
+func TestMessageActivityType_IsValid(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name string
+		m    MessageActivityType
+		want bool
+	}{
+		{
+			name: "MessageActivityTypeNil",
+			m:    MessageActivityTypeNil,
+			want: false,
+		},
+		{
+			name: "MessageActivityTypeJoin",
+			m:    MessageActivityTypeJoin,
+			want: true,
+		},
+		{
+			name: "MessageActivityTypeSpectate",
+			m:    MessageActivityTypeSpectate,
+			want: true,
+		},
+		{
+			name: "MessageActivityTypeListen",
+			m:    MessageActivityTypeListen,
+			want: true,
+		},
+		{
+			name: "MessageActivityTypeJoinRequest",
+			m:    MessageActivityTypeJoinRequest,
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
+			t.Parallel()
+			if got := tt.m.IsValid(); got != tt.want {
+				t.Errorf("IsValid() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
