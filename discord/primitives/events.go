@@ -136,7 +136,7 @@ const (
 var ErrorNoGatewayEventByName = fmt.Errorf("primitives: no valid GatewayEvent for given GatewayEventName")
 
 //GetGatewayEventByName returns an interface which is a pointer to an empty struct of the corresponding GatewayEventType
-func GetGatewayEventByName(name string) (GatewayEvent, error) { //todo: finish filling
+func GetGatewayEventByName(name string) (GatewayEvent, error) {
 	switch GatewayEventType(name) {
 	case GatewayEventTypeHello:
 		return &GatewayEventHello{}, nil
@@ -226,6 +226,38 @@ func GetGatewayEventByName(name string) (GatewayEvent, error) { //todo: finish f
 		return &GatewayEventInviteDelete{}, nil
 	case GatewayEventTypeMessageCreate:
 		return &GatewayEventMessageCreate{}, nil
+	case GatewayEventTypeMessageUpdate:
+		return &GatewayEventMessageUpdate{}, nil
+	case GatewayEventTypeMessageDelete:
+		return &GatewayEventMessageDelete{}, nil
+	case GatewayEventTypeMessageDeleteBulk:
+		return &GatewayEventMessageDeleteBulk{}, nil
+	case GatewayEventTypeMessageReactionAdd:
+		return &GatewayEventMessageReactionAdd{}, nil
+	case GatewayEventTypeMessageReactionRemove:
+		return &GatewayEventMessageReactionRemove{}, nil
+	case GatewayEventTypeMessageReactionRemoveAll:
+		return &GatewayEventMessageReactionRemoveAll{}, nil
+	case GatewayEventTypeMessageReactionRemoveEmoji:
+		return &GatewayEventMessageReactionRemoveEmoji{}, nil
+	case GatewayEventTypePresenceUpdate:
+		return &GatewayEventPresenceUpdate{}, nil
+	case GatewayEventTypeStageInstanceCreate:
+		return &GatewayEventStageInstanceCreate{}, nil
+	case GatewayEventTypeStageInstanceDelete:
+		return &GatewayEventStageInstanceDelete{}, nil
+	case GatewayEventTypeStageInstanceUpdate:
+		return &GatewayEventStageInstanceUpdate{}, nil
+	case GatewayEventTypeTypingStart:
+		return &GatewayEventTypingStart{}, nil
+	case GatewayEventTypeUserUpdate:
+		return &GatewayEventUserUpdate{}, nil
+	case GatewayEventTypeVoiceStateUpdate:
+		return &GatewayEventVoiceStateUpdate{}, nil
+	case GatewayEventTypeVoiceServerUpdate:
+		return &GatewayEventVoiceServerUpdate{}, nil
+	case GatewayEventTypeWebhooksUpdate:
+		return &GatewayEventWebhooksUpdate{}, nil
 	default:
 		return nil, ErrorNoGatewayEventByName
 	}
@@ -962,5 +994,226 @@ func (GatewayEventMessageCreate) Type() GatewayEventType {
 }
 
 func (GatewayEventMessageCreate) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+type GatewayEventMessageUpdate struct {
+	Message
+}
+
+func (GatewayEventMessageUpdate) Type() GatewayEventType {
+	return GatewayEventTypeMessageUpdate
+}
+
+func (GatewayEventMessageUpdate) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+type GatewayEventMessageDelete struct {
+	ID        Snowflake `json:"id"`
+	ChannelID Snowflake `json:"channel_id"`
+	GuildID   Snowflake `json:"guild_id"`
+}
+
+func (GatewayEventMessageDelete) Type() GatewayEventType {
+	return GatewayEventTypeMessageDelete
+}
+
+func (GatewayEventMessageDelete) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+type GatewayEventMessageDeleteBulk struct {
+	IDs       []Snowflake `json:"ids"`
+	ChannelID Snowflake   `json:"channel_id"`
+	GuildID   Snowflake   `json:"guild_id"`
+}
+
+func (GatewayEventMessageDeleteBulk) Type() GatewayEventType {
+	return GatewayEventTypeMessageDeleteBulk
+}
+
+func (GatewayEventMessageDeleteBulk) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+type GatewayEventMessageReactionAdd struct {
+	UserID    Snowflake   `json:"user_id"`
+	ChannelID Snowflake   `json:"channel_id"`
+	MessageID Snowflake   `json:"message_id"`
+	GuildID   Snowflake   `json:"guild_id"`
+	Member    GuildMember `json:"member"`
+	Emoji     Emoji       `json:"emoji"`
+}
+
+func (GatewayEventMessageReactionAdd) Type() GatewayEventType {
+	return GatewayEventTypeMessageReactionAdd
+}
+
+func (GatewayEventMessageReactionAdd) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+type GatewayEventMessageReactionRemove struct {
+	UserID    Snowflake `json:"user_id"`
+	ChannelID Snowflake `json:"channel_id"`
+	MessageID Snowflake `json:"message_id"`
+	GuildID   Snowflake `json:"guild_id"`
+	Emoji     Emoji     `json:"emoji"`
+}
+
+func (GatewayEventMessageReactionRemove) Type() GatewayEventType {
+	return GatewayEventTypeMessageReactionRemove
+}
+
+func (GatewayEventMessageReactionRemove) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+type GatewayEventMessageReactionRemoveAll struct {
+	ChannelID Snowflake `json:"channel_id"`
+	MessageID Snowflake `json:"message_id"`
+	GuildID   Snowflake `json:"guild_id"`
+}
+
+func (GatewayEventMessageReactionRemoveAll) Type() GatewayEventType {
+	return GatewayEventTypeMessageReactionRemoveAll
+}
+
+func (GatewayEventMessageReactionRemoveAll) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+type GatewayEventMessageReactionRemoveEmoji struct {
+	ChannelID Snowflake `json:"channel_id"`
+	MessageID Snowflake `json:"message_id"`
+	GuildID   Snowflake `json:"guild_id"`
+	Emoji     Emoji     `json:"emoji"`
+}
+
+func (GatewayEventMessageReactionRemoveEmoji) Type() GatewayEventType {
+	return GatewayEventTypeMessageReactionRemoveEmoji
+}
+
+func (GatewayEventMessageReactionRemoveEmoji) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+type GatewayEventPresenceUpdate struct {
+	User         User           `json:"user"`
+	GuildID      Snowflake      `json:"guild_id"`
+	Status       PresenceStatus `json:"status"`
+	Activities   []Activity     `json:"activities"`
+	ClientStatus ClientStatus   `json:"client_status"`
+}
+
+func (GatewayEventPresenceUpdate) Type() GatewayEventType {
+	return GatewayEventTypePresenceUpdate
+}
+
+func (GatewayEventPresenceUpdate) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+type GatewayEventStageInstanceCreate struct {
+	StageInstance
+}
+
+func (GatewayEventStageInstanceCreate) Type() GatewayEventType {
+	return GatewayEventTypeStageInstanceCreate
+}
+
+func (GatewayEventStageInstanceCreate) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+type GatewayEventStageInstanceDelete struct {
+	StageInstance
+}
+
+func (GatewayEventStageInstanceDelete) Type() GatewayEventType {
+	return GatewayEventTypeStageInstanceDelete
+}
+
+func (GatewayEventStageInstanceDelete) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+type GatewayEventStageInstanceUpdate struct {
+	StageInstance
+}
+
+func (GatewayEventStageInstanceUpdate) Type() GatewayEventType {
+	return GatewayEventTypeStageInstanceUpdate
+}
+
+func (GatewayEventStageInstanceUpdate) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+type GatewayEventTypingStart struct {
+	ChannelID Snowflake   `json:"channel_id"`
+	GuildID   Snowflake   `json:"guild_id"`
+	UserID    Snowflake   `json:"user_id"`
+	Timestamp time.Time   `json:"timestamp"`
+	Member    GuildMember `json:"member"`
+}
+
+func (GatewayEventTypingStart) Type() GatewayEventType {
+	return GatewayEventTypeTypingStart
+}
+
+func (GatewayEventTypingStart) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+type GatewayEventUserUpdate struct {
+	User
+}
+
+func (GatewayEventUserUpdate) Type() GatewayEventType {
+	return GatewayEventTypeUserUpdate
+}
+
+func (GatewayEventUserUpdate) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+type GatewayEventVoiceStateUpdate struct {
+	VoiceState
+}
+
+func (GatewayEventVoiceStateUpdate) Type() GatewayEventType {
+	return GatewayEventTypeVoiceStateUpdate
+}
+
+func (GatewayEventVoiceStateUpdate) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+type GatewayEventVoiceServerUpdate struct {
+	Token    string    `json:"token"`
+	GuildID  Snowflake `json:"guild_id"`
+	Endpoint string    `json:"endpoint"`
+}
+
+func (GatewayEventVoiceServerUpdate) Type() GatewayEventType {
+	return GatewayEventTypeVoiceServerUpdate
+}
+
+func (GatewayEventVoiceServerUpdate) Opcode() GatewayOpcode {
+	return GatewayOpcodeDispatch
+}
+
+type GatewayEventWebhooksUpdate struct {
+	GuildID   Snowflake `json:"guild_id"`
+	ChannelID Snowflake `json:"channel_id"`
+}
+
+func (GatewayEventWebhooksUpdate) Type() GatewayEventType {
+	return GatewayEventTypeWebhooksUpdate
+}
+
+func (GatewayEventWebhooksUpdate) Opcode() GatewayOpcode {
 	return GatewayOpcodeDispatch
 }
