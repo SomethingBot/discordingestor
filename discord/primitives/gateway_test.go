@@ -229,11 +229,3 @@ func TestGatewayIntent_Contains(t *testing.T) {
 		})
 	}
 }
-
-func TestGetGatewayURI(t *testing.T) {
-	t.Parallel()
-	_, err := GetGatewayURI()
-	if err != nil {
-		t.Fatalf("could not get gateway URI (%v)\n", err)
-	}
-}

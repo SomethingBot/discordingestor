@@ -2,10 +2,6 @@ package primitives
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/SomethingBot/discordingestor/discord/libinfo"
-	"net/http"
-	"net/url"
 )
 
 //GatewayIntent from https://discord.com/developers/docs/topics/gateway#gateway-intents
@@ -110,48 +106,6 @@ func (gatewayIntent GatewayIntent) IsValid() bool {
 //Contains another GatewayIntent
 func (gatewayIntent GatewayIntent) Contains(intent GatewayIntent) bool {
 	return intent&gatewayIntent == intent && intent != GatewayIntentNil
-}
-
-//GetGatewayURI returns the current Discord Gateway WSS URL //todo: make it so test doesn't have to hit server
-func GetGatewayURI() (url.URL, error) {
-	req, err := http.NewRequest("GET", "https://discord.com/api/gateway", nil)
-	if err != nil {
-		return url.URL{}, err
-	}
-	req.Header.Set("User-Agent", libinfo.BotUserAgent)
-
-	httpClient := http.Client{}
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		return url.URL{}, err
-	}
-
-	urlJson := struct {
-		Url string `json:"url"`
-	}{}
-
-	decoder := json.NewDecoder(resp.Body)
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&urlJson)
-	if err != nil {
-		err2 := resp.Body.Close()
-		if err2 != nil {
-			return url.URL{}, fmt.Errorf("could not close body (%v), after error (%w)", err2, err)
-		}
-		return url.URL{}, err
-	}
-
-	err = resp.Body.Close()
-	if err != nil {
-		return url.URL{}, err
-	}
-
-	uri, err := url.ParseRequestURI(urlJson.Url)
-	if err != nil {
-		return url.URL{}, err
-	}
-
-	return *uri, err
 }
 
 //GatewayOpcode of payload sent by Gateway; documented at https://discord.com/developers/docs/topics/opcodes-and-status-codes#gateway-gateway-opcodes

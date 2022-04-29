@@ -1,6 +1,7 @@
 package discord
 
 import (
+	"github.com/SomethingBot/discordingestor/discord/discordwebapi"
 	"github.com/SomethingBot/discordingestor/discord/primitives"
 	"os"
 	"testing"
@@ -25,7 +26,7 @@ func TestClient_OpenClose(t *testing.T) {
 		}
 	}
 
-	gatewayURI, err := primitives.GetGatewayURI()
+	gatewayURI, err := discordwebapi.GetGatewayWebsocketURI("")
 	if err != nil {
 		t.Fatal(err)
 	}
