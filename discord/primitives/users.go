@@ -15,7 +15,7 @@ type PresenceUpdate struct {
 	//User presence is being updated for
 	User User `json:"user"`
 	//GuildID where PresenceUpdate is for
-	GuildID Snowflake `json:"guild_id"`
+	GuildID Snowflake `json:"guild_id,string"`
 	//Status that is being updated
 	Status PresenceStatus `json:"status"`
 	//Activities of User
@@ -96,7 +96,7 @@ func (premiumType PremiumType) IsValid() bool {
 //User struct from https://discord.com/developers/docs/resources/user#user-object
 type User struct {
 	//ID of User
-	ID Snowflake `json:"id"`
+	ID Snowflake `json:"id,string"`
 	//Username of User, not unique
 	Username string `json:"username"`
 	//Discriminator of User, 4 suffix digits

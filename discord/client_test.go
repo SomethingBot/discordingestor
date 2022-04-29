@@ -4,6 +4,7 @@ import (
 	"github.com/SomethingBot/discordingestor/discord/primitives"
 	"os"
 	"testing"
+	"time"
 )
 
 func TestClient_OpenClose(t *testing.T) {
@@ -24,11 +25,17 @@ func TestClient_OpenClose(t *testing.T) {
 		}
 	}
 
-	client := NewClient(apikey, "", primitives.GatewayIntentAll, NewEventDistributor())
-	err := client.Open()
+	gatewayURI, err := primitives.GetGatewayURI()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	client := NewClient(apikey, gatewayURI.String(), primitives.GatewayIntentAll, NewEventDistributor())
+	err = client.Open()
 	if err != nil {
 		t.Fatalf("error on open (%v)\n", err)
 	}
+	time.Sleep(time.Second * 5)
 	err = client.Close()
 	if err != nil {
 		t.Fatalf("error on close (%v)\n", err)

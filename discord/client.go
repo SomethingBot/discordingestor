@@ -4,13 +4,17 @@ import (
 	"bytes"
 	"compress/zlib"
 	"context"
+	"crypto/rand"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"github.com/SomethingBot/discordingestor/discord/libinfo"
 	"github.com/SomethingBot/discordingestor/discord/primitives"
 	"github.com/gorilla/websocket"
 	"io"
+	mathrand "math/rand"
 	"net/http"
+	"runtime"
 	"sync"
 	"time"
 )
@@ -28,8 +32,9 @@ type Client struct {
 	closeErr  error
 	closeLock sync.Mutex
 
-	wg         sync.WaitGroup
-	senderChan chan senderWork
+	wg          sync.WaitGroup
+	senderChan  chan senderWork
+	senderClose chan struct{}
 }
 
 func NewClient(apikey, endpoint string, intents primitives.GatewayIntent, eDist eDist) *Client {
@@ -43,22 +48,47 @@ func NewClient(apikey, endpoint string, intents primitives.GatewayIntent, eDist 
 }
 
 type senderWork struct {
-	reader   io.Reader
+	data     []byte
 	response chan error
 }
 
-func (c *Client) startWebsocketSender() {
+func (c *Client) startWebsocketWriter() {
+	c.wg.Add(1)
+	go func() {
+		defer c.wg.Done()
+		var err error
+		var work senderWork
 
+		for {
+			select {
+			case <-c.senderClose:
+				return
+			case work = <-c.senderChan:
+				err = c.conn.WriteMessage(websocket.TextMessage, work.data)
+				if err != nil {
+					err = c.closeWithError(err)
+					if err != nil {
+						fmt.Println(fmt.Errorf("failed to closeWithError recieved error (%v)", err))
+					}
+					work.response <- err
+					return
+				}
+				work.response <- nil
+			}
+		}
+	}()
 }
 
-func (c *Client) sendMessage(reader io.Reader) error {
-	response := make(chan error)
-	c.senderChan <- senderWork{
-		reader:   reader,
-		response: nil,
+func (c *Client) writeToWebsocket(data []byte) error {
+	work := senderWork{
+		data:     data,
+		response: make(chan error),
 	}
-	return <-response
+	c.senderChan <- work
+	return <-work.response
 }
+
+//todo: handle resumes
 
 func (c *Client) startWebsocketReader() {
 
@@ -81,6 +111,7 @@ func (c *Client) handshake() error {
 	var reader io.Reader
 	var gEvent primitives.GEvent
 	var decoder *json.Decoder
+	var data []byte
 	for {
 		messageType, reader, err = c.conn.NextReader()
 		if err != nil {
@@ -101,7 +132,6 @@ func (c *Client) handshake() error {
 		if err != nil {
 			return fmt.Errorf("could not decode into gEvent (%w)", err)
 		}
-
 		c.sequence.set(gEvent.SequenceNumber)
 
 		switch gEvent.Opcode {
@@ -111,8 +141,30 @@ func (c *Client) handshake() error {
 			if err != nil {
 				return fmt.Errorf("could not unmarshal gEvent.EventDate into a GatewayEventHello (%w)", err)
 			}
+			fmt.Println("got opcode hello")
 			c.eDist.FireEvent(hello)
+			data, err = json.Marshal(primitives.GatewayIdentify{
+				Opcode: primitives.GatewayOpcodeIdentify,
+				Data: primitives.GatewayIdentifyData{
+					Token:   c.apikey,
+					Intents: c.intents,
+					Properties: primitives.GatewayIdentifyProperties{
+						OS:      runtime.GOOS,
+						Browser: "discordingestor",
+						Device:  "discordingestor",
+					},
+				},
+			})
+			if err != nil {
+				return err
+			}
+			err = c.writeToWebsocket(data)
+			if err != nil {
+				return err
+			}
+			//exit and transfer conn to reader
 		default:
+			fmt.Println("got event out of sequence")
 			var gatewayEvent primitives.GatewayEvent
 			gatewayEvent, err = primitives.GetGatewayEventByName(gEvent.Name)
 			if err != nil {
@@ -131,7 +183,20 @@ type heartbeat struct {
 	primitives.GEvent
 }
 
-func (c *Client) startHeartBeatWorker() {
+func (c *Client) startHeartBeatWorker() error {
+	jitter, err := func() (float64, error) {
+		b := make([]byte, 8)
+		_, err := rand.Read(b)
+		if err != nil {
+			return 0, err
+		}
+		mathrand.Seed(int64(binary.BigEndian.Uint64(b)))
+		return mathrand.Float64(), nil
+	}()
+	if err != nil {
+		return err
+	}
+
 	shutdown := make(chan struct{})
 	c.eDist.RegisterHandler(primitives.GatewayEventTypeClientShutdown, func(event primitives.GatewayEvent) {
 		shutdown <- struct{}{}
@@ -146,15 +211,19 @@ func (c *Client) startHeartBeatWorker() {
 	})
 	intervalChange := make(chan int)
 	c.eDist.RegisterHandlerOnce(primitives.GatewayEventTypeHello, func(event primitives.GatewayEvent) {
-		intervalChange <- event.(primitives.GatewayEventHello).Interval
+		intervalChange <- int(float64(event.(primitives.GatewayEventHello).Interval) * jitter)
 	})
+
+	c.wg.Add(1)
 	go func() {
+		defer c.wg.Done()
 		interval := <-intervalChange
 		close(intervalChange)
 
 		intervalDuration := time.Duration(interval) * time.Millisecond
 		timer := time.NewTimer(intervalDuration)
 		hasACKed := false
+
 		for {
 			select {
 			case <-timer.C:
@@ -163,7 +232,10 @@ func (c *Client) startHeartBeatWorker() {
 					c.eDist.WaitTilDone()
 					return
 				}
-				//send heartbeat
+				err = c.writeToWebsocket([]byte(fmt.Sprintf("{\"op\": 1, \"d\":%v\"", c.sequence.count())))
+				if err != nil {
+					_ = c.closeWithError(err)
+				}
 				timer.Reset(intervalDuration)
 			case <-ack:
 				hasACKed = true
@@ -172,21 +244,24 @@ func (c *Client) startHeartBeatWorker() {
 					<-timer.C
 				}
 				hasACKed = false
-				//send heartbeat
+				err = c.writeToWebsocket([]byte(fmt.Sprintf("{\"op\": 1, \"d\":%v\"", c.sequence.count())))
+				if err != nil {
+					_ = c.closeWithError(err)
+				}
 			case <-shutdown:
 				if !timer.Stop() {
 					<-timer.C
 				}
-				c.wg.Done()
 			}
 		}
 	}()
+	return nil
 }
 
 func (c *Client) Open() error {
 	dialer := websocket.Dialer{
 		Proxy:            http.ProxyFromEnvironment,
-		HandshakeTimeout: 45 * time.Second,
+		HandshakeTimeout: 5 * time.Second,
 	}
 
 	gatewayHttpHeader := http.Header{}
@@ -196,8 +271,7 @@ func (c *Client) Open() error {
 	var err error
 	c.conn, _, err = dialer.DialContext(context.Background(), c.gatewayUrl+"/?v=9&encoding=json", gatewayHttpHeader)
 	if err != nil {
-		_ = c.conn.Close()
-		return err
+		return fmt.Errorf("could not dial (%v) error (%v)", c.gatewayUrl, err)
 	}
 	defer func() {
 		if err != nil {
@@ -207,11 +281,17 @@ func (c *Client) Open() error {
 			}
 		}
 	}()
+	err = c.startHeartBeatWorker()
+	if err != nil {
+		return err
+	}
+
+	c.startWebsocketWriter()
+
 	err = c.handshake()
 	if err != nil {
 		return fmt.Errorf("could not handshake (%w)", err)
 	}
-	c.startHeartBeatWorker()
 	return nil
 }
 

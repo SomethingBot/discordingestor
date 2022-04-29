@@ -30,7 +30,7 @@ type TeamMember struct {
 	//Permissions of TeamMember; always "*"
 	Permissions []string `json:"permissions"`
 	//TeamID TeamMember is a part of
-	TeamID Snowflake `json:"team_id"`
+	TeamID Snowflake `json:"team_id,string"`
 	//User this TeamMember is from (with discriminator, flags, id, and username fields filled)
 	User User `json:"user"`
 }
@@ -40,13 +40,13 @@ type Team struct {
 	//IconHash of Team Icon
 	IconHash ImageHash `json:"icon"`
 	//ID of Team
-	ID Snowflake `json:"id"`
+	ID Snowflake `json:"id,string"`
 	//Members of Team
 	Members []TeamMember `json:"members"`
 	//Name of Team
 	Name string `json:"name"`
 	//OwnerID of Team
-	OwnerID Snowflake `json:"owner_id"`
+	OwnerID Snowflake `json:"owner_id,string"`
 }
 
 //ApplicationFlag documented at https://discord.com/developers/docs/resources/application#application-object-application-flags
@@ -57,7 +57,7 @@ type ApplicationFlag uint32
 //Application documented at https://discord.com/developers/docs/resources/application#application-object
 type Application struct {
 	//ID of Application
-	ID Snowflake `json:"id"`
+	ID Snowflake `json:"id,string"`
 	//Name of Application
 	Name string `json:"name"`
 	//IconHash of Application
@@ -83,9 +83,9 @@ type Application struct {
 	//Team if Application belongs to a Team
 	Team Team `json:"team"`
 	//GuildID Application has been linked to
-	GuildID Snowflake `json:"guild_id"`
+	GuildID Snowflake `json:"guild_id,string"`
 	//PrimarySKUID of Game SKU
-	PrimarySKUID Snowflake `json:"primary_sku_id"`
+	PrimarySKUID Snowflake `json:"primary_sku_id,string"`
 	//URLSlug if sold on Discord as a Game
 	URLSlug string `json:"slug"`
 	//CoverImageHash of Application's default rich presence Invite

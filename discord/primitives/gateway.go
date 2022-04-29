@@ -226,3 +226,20 @@ func (GatewayEventHeartbeatACK) Type() GatewayEventType {
 func (GatewayEventHeartbeatACK) Opcode() GatewayOpcode {
 	return GatewayOpcodeHeartbeatACK
 }
+
+type GatewayIdentifyProperties struct {
+	OS      string `json:"$os"`
+	Browser string `json:"$browser"`
+	Device  string `json:"$device"`
+}
+
+type GatewayIdentifyData struct {
+	Token      string                    `json:"token"`
+	Intents    GatewayIntent             `json:"intents"`
+	Properties GatewayIdentifyProperties `json:"properties"`
+}
+
+type GatewayIdentify struct {
+	Opcode GatewayOpcode       `json:"op"`
+	Data   GatewayIdentifyData `json:"d"`
+}
