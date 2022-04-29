@@ -189,8 +189,6 @@ const (
 	MessageFlagFailedToMentionSomeRolesInThread MessageFlag = 1 << 8
 )
 
-
-
 //Message documented at https://discord.com/developers/docs/resources/channel#message-object
 type Message struct {
 	ID                Snowflake        `json:"id"`
