@@ -13,6 +13,7 @@ spawn-redis:
 	podman run -p 6379:6379 --rm --name alias-redis-dev docker.io/library/redis
 
 test-integration:
+	go vet -race ./...
 	go test
 
 lint:

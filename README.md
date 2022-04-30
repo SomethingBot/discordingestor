@@ -7,4 +7,13 @@
 ## About
 
 Discord Ingestor is a Go (Golang) Discord data ingestor designed to have interchangeable parts like the Discord State
-and a client Library like Arikawa (with a shim)
+and a client Library like Arikawa or DiscordGo (with a shim)
+
+# Developing
+
+### Make Targets
+
+```make test``` to test all functions, without hitting an external server
+
+```make test-integration``` tests, but needs credentials and a setup bot environment
+
