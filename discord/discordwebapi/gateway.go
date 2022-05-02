@@ -8,6 +8,34 @@ import (
 	"net/url"
 )
 
+type GatewayWebsocketInformationSessionStartLimit struct {
+	Total          int `json:"total"`
+	Remaining      int `json:"remaining"`
+	ResetAfter     int `json:"reset_after"`
+	MaxConcurrency int `json:"max_concurrency"`
+}
+
+type GatewayWebsocketInformation struct {
+	Url               string                                       `json:"url"`
+	Shards            int                                          `json:"shards"`
+	SessionStartLimit GatewayWebsocketInformationSessionStartLimit `json:"session_start_limit"`
+}
+
+//GetGatewayWebsocketInformation for a bot to connect to the Discord websocket
+func GetGatewayWebsocketInformation(discordApiGatewayURL string, apiKey string) (GatewayWebsocketInformation, error) {
+	if discordApiGatewayURL == "" {
+		discordApiGatewayURL = "https://discord.com/api/gateway/bot"
+	}
+
+	req, err := http.NewRequest("GET", discordApiGatewayURL, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("User-Agent", libinfo.BotUserAgent)
+
+	return nil
+}
+
 //GetGatewayWebsocketURI returns the current Discord Gateway WSS URL, pass discordApiGatewayURL as "" to use default  //todo: make it so test doesn't have to hit server
 func GetGatewayWebsocketURI(discordApiGatewayURL string) (url.URL, error) {
 	if discordApiGatewayURL == "" {
