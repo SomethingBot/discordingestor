@@ -190,8 +190,8 @@ func (c *Client) startHeartBeatWorker() error {
 		if err != nil {
 			return 0, err
 		}
-		mathrand.Seed(int64(binary.BigEndian.Uint64(b)))
-		return mathrand.Float64(), nil
+		/* #nosec G404 */
+		return mathrand.New(mathrand.NewSource(int64(binary.BigEndian.Uint64(b)))).Float64(), nil
 	}()
 	if err != nil {
 		return err
@@ -232,7 +232,7 @@ func (c *Client) startHeartBeatWorker() error {
 					c.eDist.WaitTilDone()
 					return
 				}
-				err = c.writeToWebsocket([]byte(fmt.Sprintf("{\"op\": 1, \"d\":%v\"", c.sequence.count())))
+				err = c.writeToWebsocket([]byte(fmt.Sprintf("{\"op\": 1, \"d\":%v\"}", c.sequence.count())))
 				if err != nil {
 					_ = c.closeWithError(err)
 				}
@@ -244,7 +244,7 @@ func (c *Client) startHeartBeatWorker() error {
 					<-timer.C
 				}
 				hasACKed = false
-				err = c.writeToWebsocket([]byte(fmt.Sprintf("{\"op\": 1, \"d\":%v\"", c.sequence.count())))
+				err = c.writeToWebsocket([]byte(fmt.Sprintf("{\"op\": 1, \"d\":%v\"}", c.sequence.count())))
 				if err != nil {
 					_ = c.closeWithError(err)
 				}
