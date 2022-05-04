@@ -25,6 +25,10 @@ steps:
     image: golang:1.18
     commands:
       - go test -v ./... -short
+  - name: gosec
+    image: securego/gosec:v2.11.0
+    commands:
+      - gosec -tests ./...
 ---
 kind: pipeline
 type: docker
