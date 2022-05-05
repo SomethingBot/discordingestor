@@ -1,7 +1,6 @@
 package discord
 
 import (
-	"bytes"
 	"compress/zlib"
 	"context"
 	"crypto/rand"
@@ -95,88 +94,70 @@ func (c *Client) startWebsocketReader() {
 }
 
 func (c *Client) handshake() error {
-	var err error
+	messageType, reader, err := c.conn.NextReader()
+	if err != nil {
+		return fmt.Errorf("could not get next reader (%w)", err)
+	}
 
-	readCloser := io.NopCloser(bytes.NewBuffer(nil)) //todo: replace with a noOpReader, wasting memory for a bit
-	defer func() {
+	var readCloser io.ReadCloser
+	if messageType == websocket.BinaryMessage {
+		readCloser, err = zlib.NewReader(reader)
 		if err != nil {
+			return fmt.Errorf("zlib reader could not be created (%w)", err)
+		}
+		reader = readCloser
+		defer func() {
 			err2 := readCloser.Close()
 			if err2 != nil {
-				err = fmt.Errorf("%w, also could not close readCloser %v", err, err2)
+				if err != nil {
+					err = fmt.Errorf("could not close zlibReader with error (%v) after error (%w)", err2, err)
+				} else {
+					err = err2
+				}
 			}
-		}
-	}()
-
-	var messageType int
-	var reader io.Reader
-	var gEvent primitives.GEvent
-	var decoder *json.Decoder
-	var data []byte
-	for {
-		messageType, reader, err = c.conn.NextReader()
-		if err != nil {
-			return fmt.Errorf("read error (%w)", err)
-		}
-
-		if messageType == websocket.BinaryMessage {
-			reader, err = zlib.NewReader(reader)
-			if err != nil {
-				return fmt.Errorf("could not create new zlib reader (%w)", err)
-			}
-		} else {
-			readCloser = io.NopCloser(reader)
-		}
-
-		decoder = json.NewDecoder(readCloser)
-		err = decoder.Decode(&gEvent)
-		if err != nil {
-			return fmt.Errorf("could not decode into gEvent (%w)", err)
-		}
-		c.sequence.set(gEvent.SequenceNumber)
-
-		switch gEvent.Opcode {
-		case primitives.GatewayOpcodeHello:
-			hello := primitives.GatewayEventHello{}
-			err = json.Unmarshal(gEvent.Data, &hello)
-			if err != nil {
-				return fmt.Errorf("could not unmarshal gEvent.EventDate into a GatewayEventHello (%w)", err)
-			}
-			fmt.Println("got opcode hello")
-			c.eDist.FireEvent(hello)
-			data, err = json.Marshal(primitives.GatewayIdentify{
-				Opcode: primitives.GatewayOpcodeIdentify,
-				Data: primitives.GatewayIdentifyData{
-					Token:   c.apikey,
-					Intents: c.intents,
-					Properties: primitives.GatewayIdentifyProperties{
-						OS:      runtime.GOOS,
-						Browser: "discordingestor",
-						Device:  "discordingestor",
-					},
-				},
-			})
-			if err != nil {
-				return err
-			}
-			err = c.writeToWebsocket(data)
-			if err != nil {
-				return err
-			}
-			//exit and transfer conn to reader
-		default:
-			fmt.Println("got event out of sequence")
-			var gatewayEvent primitives.GatewayEvent
-			gatewayEvent, err = primitives.GetGatewayEventByName(gEvent.Name)
-			if err != nil {
-				return err
-			}
-			err = json.Unmarshal(gEvent.Data, &gatewayEvent)
-			if err != nil {
-				return err
-			}
-			c.eDist.FireEvent(gatewayEvent)
-		}
+		}()
 	}
+
+	decoder := json.NewDecoder(reader)
+
+	var gEvent primitives.GEvent
+	err = decoder.Decode(&gEvent)
+	if err != nil {
+		return fmt.Errorf("could not decode json gEvent (%w)", err)
+	}
+
+	c.sequence.set(gEvent.SequenceNumber)
+
+	//todo: find a way to not have to decode json, store event, then decode json *again*
+
+	var hello primitives.GatewayEventHello
+	err = json.Unmarshal(gEvent.Data, &hello)
+	if err != nil {
+		return fmt.Errorf("could not decode json GatewayEventHello")
+	}
+	c.eDist.FireEvent(hello)
+
+	var data []byte
+	data, err = json.Marshal(primitives.GatewayIdentify{
+		Opcode: primitives.GatewayOpcodeIdentify,
+		Data: primitives.GatewayIdentifyData{
+			Token:   c.apikey,
+			Intents: c.intents,
+			Properties: primitives.GatewayIdentifyProperties{
+				OS:      runtime.GOOS,
+				Browser: "discordingestor",
+				Device:  "discordingestor",
+			},
+		},
+	})
+	if err != nil {
+		return err
+	}
+	err = c.writeToWebsocket(data)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 type heartbeat struct {
@@ -217,7 +198,7 @@ func (c *Client) startHeartBeatWorker() error {
 	c.wg.Add(1)
 	go func() {
 		defer c.wg.Done()
-		interval := <-intervalChange
+		interval := <-intervalChange //todo: handle a resume, which shouldn't require calling this again
 		close(intervalChange)
 
 		intervalDuration := time.Duration(interval) * time.Millisecond
@@ -292,6 +273,8 @@ func (c *Client) Open() error {
 	if err != nil {
 		return fmt.Errorf("could not handshake (%w)", err)
 	}
+
+	c.startWebsocketReader()
 	return nil
 }
 
