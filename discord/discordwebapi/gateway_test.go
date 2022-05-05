@@ -9,6 +9,10 @@ func TestGetGatewayWebsocketInformation(t *testing.T) {
 	t.Parallel()
 	//todo: make a short test that doesn't hit server
 
+	if testing.Short() {
+		t.Skipf("test short flag set, skipping integration tests")
+	}
+
 	apikey := os.Getenv("discordapikey")
 	if apikey == "" {
 		apikeyBytes, err := os.ReadFile("../../apikeyfile")
