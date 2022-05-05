@@ -160,6 +160,8 @@ func (c *Client) handshake() error {
 	return nil
 }
 
+var ErrorNoACKAfterHeartbeat = fmt.Errorf("discord: did not receive an ACK after sending a heartbeat")
+
 func (c *Client) startHeartBeatWorker() error {
 	jitter, err := func() (float64, error) {
 		b := make([]byte, 8)
@@ -205,7 +207,7 @@ func (c *Client) startHeartBeatWorker() error {
 			select {
 			case <-timer.C:
 				if !hasACKed {
-					c.eDist.FireEvent(primitives.GatewayEventClientShutdown{Err: fmt.Errorf("discord: did not receive an ACK after sending a heartbeat")})
+					c.eDist.FireEvent(primitives.GatewayEventClientShutdown{Err: ErrorNoACKAfterHeartbeat})
 					c.eDist.WaitTilDone()
 					return
 				}
