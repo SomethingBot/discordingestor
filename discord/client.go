@@ -278,7 +278,7 @@ func (c *Client) Open() error {
 	return nil
 }
 
-func (c *Client) closeWithError(err error) error { //todo: should return error if closeWithError is called before hand
+func (c *Client) closeWithError(err error) error {
 	c.closeLock.Lock()
 	defer c.closeLock.Unlock()
 
@@ -287,13 +287,9 @@ func (c *Client) closeWithError(err error) error { //todo: should return error i
 	}
 	c.closeErr = err
 
-	c.eDist.FireEvent(primitives.GatewayEventClientShutdown{Err: fmt.Errorf("discord: did not receive an ACK after sending a heartbeat")})
+	c.eDist.FireEvent(primitives.GatewayEventClientShutdown{Err: err})
 	c.eDist.WaitTilDone()
-
-	//todo: stop writer
-	//todo: stop reader
-
-	return c.closeErr
+	return err
 }
 
 func (c *Client) Close() error {
