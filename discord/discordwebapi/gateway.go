@@ -22,7 +22,6 @@ type GatewayWebsocketInformation struct {
 	SessionStartLimit GatewayWebsocketInformationSessionStartLimit `json:"session_start_limit"`
 }
 
-//GetGatewayWebsocketInformation for a bot to connect to the Discord websocket, pass discordApiGatewayURL as "" to use default
 func GetGatewayWebsocketInformation(discordApiGatewayURL string, apiKey string) (GatewayWebsocketInformation, error) {
 	if discordApiGatewayURL == "" {
 		discordApiGatewayURL = "https://discord.com/api/gateway/bot"
