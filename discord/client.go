@@ -294,6 +294,17 @@ func (c *Client) closeWithError(err error) error {
 
 	c.eDist.FireEvent(primitives.GatewayEventClientShutdown{Err: err})
 	c.eDist.WaitTilDone()
+
+	err = c.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+	if err != nil {
+		return err
+	}
+
+	err = c.conn.Close()
+	if err != nil {
+		return err
+	}
+
 	return err
 }
 
