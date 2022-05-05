@@ -203,6 +203,12 @@ func (c *Client) startHeartBeatWorker() error {
 		timer := time.NewTimer(intervalDuration)
 		hasACKed := false
 
+		defer func() {
+			if !timer.Stop() {
+				<-timer.C
+			}
+		}()
+
 		for {
 			select {
 			case <-timer.C:
@@ -214,6 +220,7 @@ func (c *Client) startHeartBeatWorker() error {
 				err = c.writeToWebsocket([]byte(fmt.Sprintf("{\"op\": 1, \"d\":%v\"}", c.sequence.count())))
 				if err != nil {
 					_ = c.closeWithError(err)
+					return
 				}
 				timer.Reset(intervalDuration)
 			case <-ack:
@@ -226,11 +233,11 @@ func (c *Client) startHeartBeatWorker() error {
 				err = c.writeToWebsocket([]byte(fmt.Sprintf("{\"op\": 1, \"d\":%v\"}", c.sequence.count())))
 				if err != nil {
 					_ = c.closeWithError(err)
+					return
 				}
+				timer.Reset(intervalDuration)
 			case <-shutdown:
-				if !timer.Stop() {
-					<-timer.C
-				}
+				return
 			}
 		}
 	}()
