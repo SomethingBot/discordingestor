@@ -160,10 +160,6 @@ func (c *Client) handshake() error {
 	return nil
 }
 
-type heartbeat struct {
-	primitives.GEvent
-}
-
 func (c *Client) startHeartBeatWorker() error {
 	jitter, err := func() (float64, error) {
 		b := make([]byte, 8)
