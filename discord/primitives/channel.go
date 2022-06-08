@@ -166,11 +166,11 @@ type ThreadMember struct {
 //Channel struct from https://discord.com/developers/docs/resources/channel#channel-object
 type Channel struct {
 	//ID of Channel
-	ID Snowflake `json:"id"`
+	ID Snowflake `json:"id,string"`
 	//Type of Channel
 	Type ChannelType `json:"type"`
 	//GuildID of Guild; may be missing for some channel objects received over gateway guild dispatches)
-	GuildID Snowflake `json:"guild_id"`
+	GuildID Snowflake `json:"guild_id,string"`
 	//Position of sorting
 	Position int `json:"position"`
 	//PermissionOverwrites for GuildMembers and Roles; these are explicit
@@ -182,7 +182,7 @@ type Channel struct {
 	//IsNSFW Channel
 	IsNSFW bool `json:"nsfw"`
 	//LastMessageID for Channel (may not point to actual message)
-	LastMessageID Snowflake `json:"last_message_id"`
+	LastMessageID Snowflake `json:"last_message_id,string"`
 	//Bitrate of Channel if VC
 	Bitrate int `json:"bitrate"`
 	//MemberLimit of Channel if VC
@@ -194,11 +194,11 @@ type Channel struct {
 	//IconHash for grabbing Icon from CDN
 	IconHash ImageHash `json:"icon"`
 	//OwnerID of group DM or Thread
-	OwnerID Snowflake `json:"owner_id"`
+	OwnerID Snowflake `json:"owner_id,string"`
 	//ApplicationID if group DM is bot-created
-	ApplicationID Snowflake `json:"application_id"`
+	ApplicationID Snowflake `json:"application_id,string"`
 	//ParentID for a Guild Channel: category, Thread: Channel where created
-	ParentID Snowflake `json:"parent_id"`
+	ParentID Snowflake `json:"parent_id,string"`
 	//LastPinTimestamp maybe nil when no Messages have been pinned
 	LastPinTimestamp time.Time `json:"last_pin_timestamp"`
 	//VoiceRegion, empty if automatic
@@ -222,9 +222,9 @@ type Channel struct {
 //ChannelMention documented at https://discord.com/developers/docs/resources/channel#channel-mention-object
 type ChannelMention struct {
 	//ID of Channel
-	ID Snowflake `json:"id"`
+	ID Snowflake `json:"id,string"`
 	//GuildID containing Channel
-	GuildID Snowflake `json:"guild_id"`
+	GuildID Snowflake `json:"guild_id,string"`
 	//Type of Channel
 	Type ChannelType `json:"type"`
 	//Name of Channel

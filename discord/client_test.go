@@ -2,9 +2,12 @@ package discord
 
 import (
 	"github.com/SomethingBot/discordingestor/discord/discordwebapi"
+	"github.com/SomethingBot/discordingestor/discord/logging"
 	"github.com/SomethingBot/discordingestor/discord/primitives"
+	"log"
 	"os"
 	"testing"
+	"time"
 )
 
 func TestClient_OpenClose(t *testing.T) {
@@ -30,14 +33,18 @@ func TestClient_OpenClose(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	client := NewClient(apikey, gatewayURI.String(), primitives.GatewayIntentAll, NewEventDistributor())
+	client := NewClient(apikey, gatewayURI.String(), primitives.GatewayIntentAll, NewEventDistributor(), &logging.Standard{Logger: *log.Default()})
 	err = client.Open()
 	if err != nil {
 		t.Fatalf("error on open (%v)\n", err)
 	}
+
+	time.Sleep(time.Second * 15)
 
 	err = client.Close()
 	if err != nil {
 		t.Fatalf("error on close (%v)\n", err)
 	}
 }
+
+//todo: we should test every event we can from discord for proper json parsing

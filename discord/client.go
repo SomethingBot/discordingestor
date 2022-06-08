@@ -6,8 +6,10 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/SomethingBot/discordingestor/discord/libinfo"
+	"github.com/SomethingBot/discordingestor/discord/logging"
 	"github.com/SomethingBot/discordingestor/discord/primitives"
 	"github.com/gorilla/websocket"
 	"io"
@@ -23,26 +25,30 @@ type Client struct {
 	gatewayUrl string
 	intents    primitives.GatewayIntent
 
-	conn     *websocket.Conn
-	sequence syncedCounter
+	conn      *websocket.Conn
+	sequence  syncedCounter
+	writeLock sync.Mutex
 
 	eDist eDist
 
 	closeErr  error
 	closeLock sync.Mutex
 
-	wg          sync.WaitGroup
-	senderChan  chan senderWork
-	senderClose chan struct{}
+	logger logging.Logger
+
+	wg sync.WaitGroup
+
+	closeChan chan struct{}
 }
 
-func NewClient(apikey, endpoint string, intents primitives.GatewayIntent, eDist eDist) *Client {
+func NewClient(apikey, endpoint string, intents primitives.GatewayIntent, eDist eDist, logger logging.Logger) *Client {
 	return &Client{
 		apikey:     apikey,
 		gatewayUrl: endpoint,
 		intents:    intents,
 		eDist:      eDist,
-		senderChan: make(chan senderWork, 1),
+		logger:     logger,
+		closeChan:  make(chan struct{}, 1),
 	}
 }
 
@@ -51,46 +57,111 @@ type senderWork struct {
 	response chan error
 }
 
-func (c *Client) startWebsocketWriter() {
-	c.wg.Add(1)
-	go func() {
-		defer c.wg.Done()
-		var err error
-		var work senderWork
-
-		for {
-			select {
-			case <-c.senderClose:
-				return
-			case work = <-c.senderChan:
-				err = c.conn.WriteMessage(websocket.TextMessage, work.data)
-				if err != nil {
-					err = c.closeWithError(err)
-					if err != nil {
-						fmt.Println(fmt.Errorf("failed to closeWithError recieved error (%v)", err))
-					}
-					work.response <- err
-					return
-				}
-				work.response <- nil
-			}
-		}
-	}()
-}
-
 func (c *Client) writeToWebsocket(data []byte) error {
-	work := senderWork{
-		data:     data,
-		response: make(chan error),
+	c.writeLock.Lock()
+	defer c.writeLock.Unlock()
+	c.logger.Log(logging.Debug, fmt.Sprintf("writting message (%v)", string(data)))
+	err := c.conn.WriteMessage(websocket.TextMessage, data)
+	if err != nil {
+		go func() {
+			_ = c.closeWithError(err)
+		}()
 	}
-	c.senderChan <- work
-	return <-work.response
+	return err
 }
 
 //todo: handle resumes
 
 func (c *Client) startWebsocketReader() {
+	c.wg.Add(1)
+	go func() {
+		var err error
+		var readCloser io.ReadCloser
 
+		defer func() {
+			if readCloser != nil {
+				err2 := readCloser.Close()
+				if err2 != nil {
+					err = fmt.Errorf("could not close readCloser (%v) after error (%w)", err2, err)
+				}
+			}
+			if err != nil {
+				c.logger.Log(logging.Error, fmt.Sprintf("WebsocketReader error (%v)", err))
+				go func() {
+					_ = c.closeWithError(err)
+				}()
+			}
+			c.wg.Done()
+		}()
+
+		var messageType int
+		var reader io.Reader
+		var decoder *json.Decoder
+		var gatewayEvent primitives.GatewayEvent
+		var gEvent primitives.GEvent
+
+		for {
+			select { //todo: this likely won't close until next loop, find way to stop NextReader; currently likely freezes until a heartbeat ack is received
+			case _, ok := <-c.closeChan:
+				_ = ok
+				c.logger.Log(logging.Debug, "Closing WebsocketReader")
+				return
+			default:
+			}
+
+			messageType, reader, err = c.conn.NextReader()
+			if err != nil {
+				return
+			}
+
+			if messageType == websocket.BinaryMessage {
+				if readCloser == nil {
+					readCloser, err = zlib.NewReader(readCloser)
+					if err != nil {
+						return
+					}
+				}
+
+				err = readCloser.(zlib.Resetter).Reset(reader, nil)
+				if err != nil {
+					return
+				}
+
+				reader = readCloser
+			}
+
+			decoder = json.NewDecoder(reader)
+			err = decoder.Decode(&gEvent)
+			if err != nil {
+				if errors.Is(err, &(json.UnmarshalTypeError{})) {
+					c.logger.Log(logging.Warning, "JSON Data does not unmarshal ("+err.Error()+")")
+					err = nil
+					continue
+				} else {
+					return
+				}
+			}
+
+			c.logger.Log(logging.Debug, "GatewayEvent received ("+gEvent.Name+")")
+
+			c.sequence.set(gEvent.SequenceNumber)
+
+			gatewayEvent, err = primitives.GetGatewayEventByName(gEvent.Name)
+			if err != nil {
+				c.logger.Log(logging.Warning, "GatewayEvent from Discord not found in primitives.GetGatewayEventByName")
+				continue
+			}
+
+			err = json.Unmarshal(gEvent.Data, &gatewayEvent)
+			if err != nil {
+				c.logger.Log(logging.Warning, "JSON Data does not unmarshal ("+err.Error()+") data ("+string(gEvent.Data)+")")
+				err = nil
+				continue
+			}
+
+			c.eDist.FireEvent(gatewayEvent)
+		}
+	}()
 }
 
 func (c *Client) handshake() error {
@@ -162,97 +233,104 @@ func (c *Client) handshake() error {
 
 var ErrorNoACKAfterHeartbeat = fmt.Errorf("discord: did not receive an ACK after sending a heartbeat")
 
-func (c *Client) startHeartBeatWorker() error {
-	jitter, err := func() (float64, error) {
-		b := make([]byte, 8)
-		_, err := rand.Read(b)
-		if err != nil {
-			return 0, err
-		}
-		/* #nosec G404 */
-		return mathrand.New(mathrand.NewSource(int64(binary.BigEndian.Uint64(b)))).Float64(), nil
-	}()
+func (c *Client) generateJitter() float64 { //todo: doesn't need to be on Client struct
+	b := make([]byte, 8)
+	_, err := rand.Read(b)
 	if err != nil {
-		return err
+		c.logger.Log(logging.Warning, "Could not access secure rand for generating jitter, falling back to insecure math/rand with current Unix time as seed. Error ("+err.Error()+")")
+		/* #nosec G404 */
+		return mathrand.New(mathrand.NewSource(time.Now().Unix())).Float64()
 	}
+	/* #nosec G404 */
+	return mathrand.New(mathrand.NewSource(int64(binary.BigEndian.Uint64(b)))).Float64()
+}
 
-	shutdown := make(chan struct{})
-	c.eDist.RegisterHandler(primitives.GatewayEventTypeClientShutdown, func(event primitives.GatewayEvent) {
-		shutdown <- struct{}{}
-	})
+func (c *Client) startHeartBeatWorker() {
 	request := make(chan struct{})
 	c.eDist.RegisterHandler(primitives.GatewayEventTypeHeartbeatRequest, func(event primitives.GatewayEvent) {
 		request <- struct{}{}
 	})
 	ack := make(chan primitives.GatewayEventHeartbeatACK)
 	c.eDist.RegisterHandler(primitives.GatewayEventTypeHeartbeatACK, func(event primitives.GatewayEvent) {
-		ack <- event.(primitives.GatewayEventHeartbeatACK) //if this panics, it's an event handler implementation issue, not us
+		ack <- event.(primitives.GatewayEventHeartbeatACK)
 	})
 	intervalChange := make(chan int)
-	c.eDist.RegisterHandlerOnce(primitives.GatewayEventTypeHello, func(event primitives.GatewayEvent) {
-		intervalChange <- int(float64(event.(primitives.GatewayEventHello).Interval) * jitter)
+	c.eDist.RegisterHandler(primitives.GatewayEventTypeHello, func(event primitives.GatewayEvent) {
+		intervalChange <- int(float64(event.(primitives.GatewayEventHello).Interval) * c.generateJitter())
 	})
 
 	c.wg.Add(1)
 	go func() {
-		defer c.wg.Done()
 		interval := <-intervalChange //todo: handle a resume, which shouldn't require calling this again
-		close(intervalChange)
 
 		intervalDuration := time.Duration(interval) * time.Millisecond
+		c.logger.Log(logging.Debug, fmt.Sprintf("starting heartbeat-er with interval (%v)", intervalDuration))
+
 		timer := time.NewTimer(intervalDuration)
-		hasACKed := false
+		hasACKed := true
+
+		var err error
 
 		defer func() {
 			if !timer.Stop() {
 				<-timer.C
 			}
+			if err != nil {
+				c.logger.Log(logging.Debug, "heartbeater closed with error ("+err.Error()+")")
+				go func() {
+					_ = c.closeWithError(err)
+				}()
+			}
+			c.wg.Done()
+			c.logger.Log(logging.Debug, "heartbeat worker closed")
 		}()
 
 		for {
 			select {
 			case <-timer.C:
+				c.logger.Log(logging.Debug, "Time to heartbeat!")
 				if !hasACKed {
-					c.eDist.FireEvent(primitives.GatewayEventClientShutdown{Err: ErrorNoACKAfterHeartbeat})
-					c.eDist.WaitTilDone()
+					err = ErrorNoACKAfterHeartbeat
 					return
 				}
-				err = c.writeToWebsocket([]byte(fmt.Sprintf("{\"op\": 1, \"d\":%v\"}", c.sequence.count())))
+				err = c.writeToWebsocket([]byte(fmt.Sprintf("{\"op\": 1, \"d\":%v}", c.sequence.count())))
 				if err != nil {
-					_ = c.closeWithError(err)
 					return
 				}
 				timer.Reset(intervalDuration)
+				c.logger.Log(logging.Debug, "Heartbeat-ed")
 			case <-ack:
 				hasACKed = true
+				c.logger.Log(logging.Debug, "Got heartbeat ack")
 			case <-request:
+				c.logger.Log(logging.Debug, "Got heartbeat request")
 				if !timer.Stop() {
 					<-timer.C
 				}
 				hasACKed = false
-				err = c.writeToWebsocket([]byte(fmt.Sprintf("{\"op\": 1, \"d\":%v\"}", c.sequence.count())))
+				err = c.writeToWebsocket([]byte(fmt.Sprintf("{\"op\": 1, \"d\":%v}", c.sequence.count())))
 				if err != nil {
-					_ = c.closeWithError(err)
 					return
 				}
 				timer.Reset(intervalDuration)
-			case <-shutdown:
+			case _, _ = <-c.closeChan:
+				c.logger.Log(logging.Debug, "Got heartbeat shutdown")
 				return
 			}
 		}
 	}()
-	return nil
 }
 
 func (c *Client) Open() error {
+	c.logger.Log(logging.Info, "Starting Discord Client Library")
 	dialer := websocket.Dialer{
 		Proxy:            http.ProxyFromEnvironment,
-		HandshakeTimeout: 5 * time.Second,
+		HandshakeTimeout: time.Second, //todo: make configurable
 	}
 
 	gatewayHttpHeader := http.Header{}
 	gatewayHttpHeader.Set("User-Agent", libinfo.BotUserAgent)
-	gatewayHttpHeader.Set("accept-encoding", "zlib")
+	gatewayHttpHeader.Set("accept-encoding", "zlib") //todo: make configurable
 
 	var err error
 	c.conn, _, err = dialer.DialContext(context.Background(), c.gatewayUrl+"/?v=9&encoding=json", gatewayHttpHeader)
@@ -267,12 +345,12 @@ func (c *Client) Open() error {
 			}
 		}
 	}()
-	err = c.startHeartBeatWorker()
-	if err != nil {
-		return err
-	}
 
-	c.startWebsocketWriter()
+	c.eDist.RegisterHandler(primitives.GatewayEventTypeGuildCreate, func(event primitives.GatewayEvent) {
+		c.logger.Log(logging.Debug, fmt.Sprintf("guildcreate: (%#v)", event))
+	})
+
+	c.startHeartBeatWorker()
 
 	err = c.handshake()
 	if err != nil {
@@ -280,20 +358,32 @@ func (c *Client) Open() error {
 	}
 
 	c.startWebsocketReader()
+	c.logger.Log(logging.Info, "Client library running")
 	return nil
 }
 
 func (c *Client) closeWithError(err error) error {
-	c.closeLock.Lock()
-	defer c.closeLock.Unlock()
+	if err == nil {
+		c.logger.Log(logging.Debug, "closeWithError called with nil")
+	} else {
+		c.logger.Log(logging.Debug, "closeWithError called with ("+err.Error()+")")
+	}
 
+	c.closeLock.Lock()
 	if c.closeErr != nil {
-		return c.closeErr
+		c.closeLock.Unlock()
+		err2 := c.closeErr
+		return err2
 	}
 	c.closeErr = err
+	c.closeLock.Unlock()
 
 	c.eDist.FireEvent(primitives.GatewayEventClientShutdown{Err: err})
 	c.eDist.WaitTilDone()
+
+	close(c.closeChan)
+
+	c.wg.Wait()
 
 	err = c.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 	if err != nil {
